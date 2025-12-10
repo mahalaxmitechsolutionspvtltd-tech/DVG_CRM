@@ -1,0 +1,131 @@
+"use client"
+
+import * as React from "react"
+import {
+  IconDashboard,
+  IconInnerShadowTop,
+  IconListDetails,
+} from "@tabler/icons-react"
+
+import { NavUser } from "./NavUsers"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "./ui/sidebar"
+import { Building2, Contact, FileText, Handshake, Mail, Network, Settings } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
+
+
+const data = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "src/assets/avtar.jpg",
+  },
+  navMain: [
+    {
+      title: "Dashboard",
+      url: "/",
+      icon: IconDashboard,
+    },
+    {
+      title: "Leads",
+      url: "/leads",
+      icon: IconListDetails,
+    },
+    {
+      title: "Deals",
+      url: "/deals",
+      icon: Handshake,
+    },
+    {
+      title: "Network",
+      url: "/network",
+      icon: Network,
+    },
+     {
+      title: "Contacts",
+      url: "/contacts",
+      icon: Contact,
+    },
+     {
+      title: "Emails",
+      url: "/emails",
+      icon: Mail,
+    },
+       {
+      title: "Companies",
+      url: "/companies",
+      icon: Building2,
+    },
+    {
+      title: "Reports",
+      url: "/reports",
+      icon: FileText,
+    },
+     {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
+    },
+   
+  ],
+
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+
+
+  const currentPathName = useLocation();
+  const path = currentPathName.pathname;
+
+
+  return (
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+            >
+              <a href="#">
+                <IconInnerShadowTop className="size-5!" />
+                <span className="text-base font-semibold">DVG-CRM</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent className="flex flex-col gap-2">
+            <SidebarMenu>
+              {data.navMain.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <Link to={item.url} className={``}>
+                    <SidebarMenuButton tooltip={item.title} className={`${ path==item.url? "bg-gray-300" : "hover:bg-transparent"}  hover:bg-gray-200 transition-all`} >
+                      {item.icon && <item.icon />}
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={data.user} />
+      </SidebarFooter>
+    </Sidebar>
+  )
+}
