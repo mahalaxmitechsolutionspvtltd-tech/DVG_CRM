@@ -33,7 +33,7 @@ export interface AuthProviderProps {
 export interface User {
     id: string;
     email: string;
-    name: string;
+    username: string;
     mobile: number | string;
 
 }
@@ -67,34 +67,34 @@ export interface FollowUp {
 
 
 export interface Lead {
-    id: string | null;
-    entryDate: string | null;
-    companyName: string | null;
-    companyType: string | null;
-    natureOfBusiness: string | null;
-    gstNo?: string | null;
+
+    contactPerson1: any;
+    sr_no: string | null;
+    date: string | null;
+    company_name: string | null;
+    company_type: string | null;
+    nature_of_business: string | null;
+    gst_no?: string | null;
 
     // Contacts
-    contact1Name: string | null;
-    // contact1Phone: string; 
-    contact2Name?: string | null;
-    // contact2Phone?: string;
-    contact3Name?: string | null;
-    // contact3Phone?: string;
+    contact1_name: string | null;
+    contact2_name?: string | null;
+    contact3_name?: string | null;
     email: string | null;
 
 
-    addressLine1: string | null;
+    address_line1: string | null;
     city: string | null;
 
 
-    problemStatement?: string | null;
-    serviceRequirements: string[] | null;
+    problem_statement?: string | null;
+    service_requirements: string[] | null;
     remarks?: string | null;
     status: LeadStatus;
     quotationAmount?: number | null;
     quotationType?: QuotationType;
 
-    followUps: FollowUp[] | null;
-    lastUpdated: number | null;
+    follow_ups: FollowUp[] | null;
+    last_updated: number | null;
 }
+

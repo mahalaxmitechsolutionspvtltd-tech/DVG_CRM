@@ -1,24 +1,114 @@
 
 import { Button } from "./ui/button";
-import { CirclePlus, Plus } from "lucide-react";
+import { ChevronDown, CirclePlus, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel } from "./ui/select";
 import { MultiSelect, MultiSelectContent, MultiSelectGroup, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "./ui/multi-select";
 import { Textarea } from "./ui/textarea";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { useState } from "react";
-import type { Lead } from "./LeadsTable";
+import { useState, type ChangeEventHandler } from "react";
+import type { Lead } from "../lib/types";
 import type { FollowUp } from "../lib/types";
+import { addLeadHandler } from "../apiHandlers/LeadHandler";
+
+
+
+const businessNatureOptions = [
+    { lable: "Food Manufacturing", value: "Food Manufacturing" },
+    { lable: "Clothing Brand & Cloth Manufacturing", value: "Clothing Brand & Cloth Manufacturing" },
+    { lable: "Ad Agency", value: "Ad Agency" },
+    { lable: "Marketing Agency", value: "Marketing Agency" },
+    { lable: "Electrical, Engineering Goods Manufacturing", value: "Electrical, Engineering Goods Manufacturing" },
+    { lable: "Agriculture Business", value: "Agriculture Business" },
+    { lable: "Jwellery - Retailer & Wholeseller", value: "Jwellery - Retailer & Wholeseller" },
+    { lable: "Service Industry", value: "Service Industry" },
+];
+
+const companyType = [
+    { lable: 'Properitor', value: 'Properitor' },
+    { lable: 'Partnership-deed', value: 'Partnership-deed' },
+    { lable: 'Limited Liability Partnership (LLP)', value: 'Limited Liability Partnership (LLP)' },
+    { lable: 'Private Limited (Pvt Ltd)', value: 'Private Limited (Pvt Ltd)' },
+    { lable: 'Public Limited Company (PLC)', value: 'Public Limited Company (PLC)' },
+    { lable: 'Hindu Undivided Family Firm (HUF)', value: 'Hindu Undivided Family Firm (HUF)' },
+    { lable: 'Hindu Undivided Family Firm (HUF)', value: 'Government Organisation' },
+];
+
+const requirement = [
+    { lable: 'Website Development', value: 'Website Development' },
+    { lable: 'Software Development', value: 'Software Development' },
+    { lable: 'WhatsApp Marketing', value: 'WhatsApp Marketing' },
+    { lable: 'Search Engine Optimisation', value: 'Search Engine Optimisation' },
+    { lable: 'WhatsApp Automation', value: 'WhatsApp Automation' },
+    { lable: 'Social Media Marketing', value: 'Social Media Marketing' },
+    { lable: 'Tracking Video', value: 'Tracking Video' },
+    { lable: 'Lead Generation', value: 'Lead Generation' },
+    { lable: 'Mobile Application Development', value: 'Mobile Application Development' },
+    { lable: 'UI & UX Design', value: 'UI & UX Design' },
+    { lable: 'Content Shooting & Edits', value: 'Content Shooting & Edits' },
+    { lable: 'Logo, Branding & Guidelines', value: 'Logo, Branding & Guidelines' },
+    { lable: 'Start-up Development (App + Software + ERP)', value: 'Start-up Development (App + Software + ERP)' },
+    { lable: 'Enterprise Resources Planning Software', value: 'Enterprise Resources Planning Software' },
+    { lable: 'HRMS Software', value: 'HRMS Software' },
+    { lable: 'Customer Relationship Management - CRM Software', value: 'Customer Relationship Management - CRM Software' },
+    { lable: 'Company Profile & Business Profile', value: 'Company Profile & Business Profile' },
+];
 
 
 
 
+interface childProps {
+    onSuccess: (isSuccess: boolean) => void;
+}
 
-export default function AddLeads() {
-    const [formdata, setFormData] = useState<Lead>();
+const form: Partial<Lead> = {
+    problem_statement: "",
+    company_name: "",
+    company_type: "",
+    contact1_name: "",
+    contact2_name: "",
+    contact3_name: "",
+    email: "",
+    follow_ups: [],
+    gst_no: "",
+    address_line1: "",
+    nature_of_business: "",
+    remarks: "",
+    service_requirements: [],
+    status: undefined,  // or maybe "Cold" or a default
+};
+
+
+export default function AddLeads({ onSuccess }: childProps) {
+    const [formdata, setFormData] = useState<Partial<Lead>>(form);
+    const [isNewValue, setNewValue] = useState(false);
+    const [errors, setFormErrors] = useState<Lead>();
+
+    const handleInputChange: ChangeEventHandler<HTMLInputElement> | undefined = (e: any) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev, [name]: value
+        }))
+
+    }
+
+    const handleSelectChange = (name: string, value: string | string[],) => {
+
+        setFormData((prev) => ({
+            ...prev, [name]: value
+        }))
+    }
+
+    const handleTextArea = (name: string, value: string,) => {
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }))
+    }
 
     const handleFollowUpAdd = () => {
+        autoSaveForm(true)
         const newFollowUp: FollowUp = {
             id: Math.random().toString(36).substr(2, 9),
             date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
@@ -29,7 +119,7 @@ export default function AddLeads() {
 
         setFormData((prev: any) => ({
             ...prev,
-            followUps: [newFollowUp, ...(prev?.followUps || [])]
+            follow_ups: [newFollowUp, ...(prev?.follow_ups || [])]
         }));
 
     };
@@ -37,29 +127,44 @@ export default function AddLeads() {
     const updateFollowUp = (id: string, field: keyof FollowUp, value: any) => {
         setFormData((prev: any) => ({
             ...prev,
-            followUps: prev.followUps.map((item: any) => item.id === id ? { ...item, [field]: value } : item)
+            follow_ups: prev.follow_ups.map((item: any) => item.id === id ? { ...item, [field]: value } : item)
         }));
     };
 
+    const autoSaveForm = async (e: any) => {
+        if (!e) {
+            const data = await addLeadHandler(formdata);
+            console.error(data.data.response);
 
+            if (data?.data.success) {
+                onSuccess(true);
+                setFormData(form);
+            } else {
+                setFormErrors(data.data);
+                console.log(data.data);
+            }
+
+        }
+    }
 
     return (
 
         <div className=" overflow-auto overflow-y-auto">
-            <Dialog >
+            <Dialog onOpenChange={(e) => autoSaveForm(e)}>
                 <DialogTrigger asChild>
                     <Button className=" bg-blue-600 hover:bg-blue-700" variant={"default"}>
                         <CirclePlus />Leads
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="p-10 lg:max-w-7xl border bg-white border-gray-400 max-h-[90vh] overflow-y-auto  hide-scrollbar">
+                <DialogContent className="p-10 lg:max-w-7xl border bg-white border-gray-400 max-h-[90vh] overflow-y-auto  hide-scrollbar" >
+
 
                     <DialogHeader>
                         <DialogTitle className="text-center">Add Leads</DialogTitle>
                     </DialogHeader>
-                    <hr className="text-gray-300" />
+                    <hr className="text-gray-300 my-2" />
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 2xl:grid-cols-12 gap-5 overflow-y-auto h-xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 2xl:grid-cols-12 gap-5 overflow-y-auto h-xl mt-2">
 
                         <div className="col-span-8 grid gap-5">
                             {/* company section */}
@@ -70,27 +175,36 @@ export default function AddLeads() {
                                 <div className="p-3">
                                     <div className="my-3">
                                         <label htmlFor="cname">Company name</label>
-                                        <Input placeholder="compan name.." required />
+                                        <Input
+                                            name="company_name"
+                                            onChange={(e) => handleInputChange(e)}
+                                            placeholder={errors ? errors?.company_name![0] : "company name.."}
+                                            className={` ${errors?.company_name![0] ? "border border-red-600" : ""}`}
+                                            required />
                                     </div>
 
                                     <div className="grid grid-col-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
                                         {/* company type */}
                                         <div>
                                             <label htmlFor="">Company type</label>
-                                            <Select required>
+                                            <Select
+
+                                                onValueChange={(value) => handleSelectChange("company_type", value)}
+                                            >
                                                 <SelectTrigger className="w-full">
                                                     <SelectValue placeholder="Select Company type" />
                                                 </SelectTrigger>
                                                 <SelectContent className="border border-gray-300">
                                                     <SelectGroup>
                                                         <SelectLabel>companies types</SelectLabel>
-                                                        <SelectItem value="properitor">Properitor</SelectItem>
-                                                        <SelectItem value="partnership-deed">Partnership Deed</SelectItem>
-                                                        <SelectItem value="llp">Limited Liability Partnership (LLP)</SelectItem>
-                                                        <SelectItem value="ltd">Private Limited (Pvt Ltd))</SelectItem>
-                                                        <SelectItem value="plc">Public Limited Company (PLC)</SelectItem>
-                                                        <SelectItem value="huf">Hindu Undivided Family Firm (HUF)</SelectItem>
-                                                        <SelectItem value="gov">Government Organisation</SelectItem>
+                                                        {
+                                                            companyType.map((item, index) => (
+                                                                <SelectItem key={index} value={item.value}>{item.lable}</SelectItem>
+                                                            ))
+
+                                                        }
+
+
                                                     </SelectGroup>
                                                 </SelectContent>
                                             </Select>
@@ -98,31 +212,63 @@ export default function AddLeads() {
                                         {/* company nature */}
                                         <div>
                                             <label htmlFor="">Nature of Business</label>
-                                            <Select required>
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="nature of business" />
-                                                </SelectTrigger>
-                                                <SelectContent className="border border-gray-300">
-                                                    <SelectGroup>
-                                                        <SelectLabel>Nature of Business</SelectLabel>
-                                                        <SelectItem value="Food Manufacturing">Food Manufacturing</SelectItem>
-                                                        <SelectItem value="Clothing Brand & Cloth Manufacturing ">Clothing Brand & Cloth Manufacturing </SelectItem>
-                                                        <SelectItem value="Ad Agency">Ad Agency</SelectItem>
-                                                        <SelectItem value="Marketing Agency">Marketing Agency</SelectItem>
-                                                        <SelectItem value="Electrical, Engineering Goods Manufacturing ">Electrical, Engineering Goods Manufacturing </SelectItem>
-                                                        <SelectItem value="Agriculture Business">Agriculture Business</SelectItem>
-                                                        <SelectItem value="Jwellery - Retailer & Wholeseller">Jwellery - Retailer & Wholeseller</SelectItem>
-                                                        <SelectItem value="Service Industry">Service Industry</SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
+
+                                            {!isNewValue ? (
+                                                <Select
+
+                                                    name="nature_of_business"
+                                                    onValueChange={(value) => {
+                                                        value === "other" ? setNewValue(true) : handleSelectChange("natureOfBusiness", value)
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="nature of business" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="border border-gray-300">
+
+                                                        <SelectGroup>
+
+                                                            <SelectLabel>Nature of Business</SelectLabel>
+                                                            {
+                                                                businessNatureOptions.map((opt, index) => (
+                                                                    <SelectItem key={index} value={opt.value}>{opt.lable}</SelectItem>
+                                                                ))
+                                                            }
+                                                            <SelectItem value="other">
+                                                                <Button variant={"ghost"} >
+                                                                    <Plus /> Add new business of nature....
+                                                                </Button>
+                                                            </SelectItem>
+
+                                                        </SelectGroup>
+                                                    </SelectContent>
+                                                </Select>
+                                            )
+                                                :
+                                                (
+                                                    <div className="relative">
+                                                        <Input
+                                                            placeholder="Add new nature of business"
+                                                            name=" nature_of_business"
+                                                            onChange={(e) => handleInputChange(e)}
+                                                        />
+                                                        <Button onClick={() => setNewValue(false)} className=" z-1 absolute right-1 top-0.5" type="button" variant={"ghost"}>  <ChevronDown className="text-gray-500" /></Button>
+                                                    </div>
+                                                )
+
+
+                                            }
+
                                         </div>
                                     </div>
 
                                     {/* GST number */}
                                     <div className="my-3">
                                         <label htmlFor="gstno">GST Number(optional)</label>
-                                        <Input placeholder="Gst number.." />
+                                        <Input
+                                            name="gst_no"
+                                            onChange={(e) => handleInputChange(e)}
+                                            placeholder="Gst number.." />
                                     </div>
                                 </div>
                             </section>
@@ -138,22 +284,44 @@ export default function AddLeads() {
                                 <div className="p-3 grid gap-3">
                                     <div>
                                         <label htmlFor="gstno">Primary Contact 1</label>
-                                        <Input required placeholder="Name and contact." />
+                                        <Input
+                                            name="contact1_name"
+                                            onChange={(e) => handleInputChange(e)}
+                                            required
+
+                                            placeholder={errors ? errors?.contact1_name![0] : "Name and contact.."}
+                                            className={` ${errors?.contact1_name![0] ? "border border-red-600" : ""}`}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
                                         <div >
                                             <label htmlFor="gstno">Secondary Contact </label>
-                                            <Input required placeholder="Name and contact." />
+                                            <Input
+                                                name="contact2_name"
+                                                onChange={(e) => handleInputChange(e)}
+
+                                                placeholder="Name and contact." />
                                         </div>
                                         <div >
                                             <label htmlFor="gstno">Tertiary Contact </label>
-                                            <Input required placeholder="Name and contact." />
+                                            <Input
+                                                name="contact3_name"
+                                                onChange={(e) => handleInputChange(e)}
+
+                                                placeholder="Name and contact." />
                                         </div>
                                     </div>
                                     {/* email */}
                                     <div>
                                         <label htmlFor="gstno">Email</label>
-                                        <Input required placeholder="email.." />
+                                        <Input
+                                            name="email"
+                                            onChange={(e) => handleInputChange(e)}
+                                            required
+
+                                            placeholder={errors ? errors?.email![0] : "sample@gmail.com.."}
+                                            className={` ${errors?.email![0] ? "border border-red-600" : ""}`}
+                                        />
                                     </div>
 
                                 </div>
@@ -170,8 +338,11 @@ export default function AddLeads() {
                                 {/*person contacts */}
                                 <div className="p-3 grid gap-3">
                                     <div>
-                                        <label htmlFor="gstno">Location</label>
-                                        <Input required placeholder="e.g 123, Mumbai 400001,India" />
+                                        <label htmlFor="location">Location</label>
+                                        <Input
+                                            name="address_line1"
+                                            onChange={(e) => handleInputChange(e)}
+                                            placeholder="e.g 123, Mumbai 400001,India" />
                                     </div>
                                 </div>
 
@@ -191,8 +362,11 @@ export default function AddLeads() {
                                 {/*Status */}
                                 <div className="p-3 grid gap-3">
                                     <div>
-                                        <label htmlFor="">Status</label>
-                                        <Select required>
+                                        <label htmlFor="status">Status</label>
+                                        <Select
+                                            name="status"
+                                            onValueChange={(value) => handleSelectChange("status", value)}
+                                        >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Status" />
                                             </SelectTrigger>
@@ -224,7 +398,11 @@ export default function AddLeads() {
                                     {/*Requirements */}
                                     <div className="">
                                         <label htmlFor="">Required Services</label>
-                                        <MultiSelect>
+                                        <MultiSelect
+                                            onValuesChange={(e) => setFormData((prev) => ({
+                                                ...prev,
+                                                service_requirements: e
+                                            }))}>
                                             <MultiSelectTrigger
                                                 className="w-full max-h-20 overflow-y-auto"
                                             >
@@ -237,32 +415,13 @@ export default function AddLeads() {
                                             <MultiSelectContent className="border border-gray-300">
 
                                                 <MultiSelectGroup className="border border-gray-300">
-                                                    <MultiSelectItem value="Website Development">Website Development</MultiSelectItem>
-                                                    <MultiSelectItem value="Software Development">Software Development</MultiSelectItem>
-                                                    <MultiSelectItem value="WhatsApp Marketing">WhatsApp Marketing</MultiSelectItem>
-                                                    <MultiSelectItem value="Search Engine Optimisation">Search Engine Optimisation</MultiSelectItem>
-                                                    <MultiSelectItem value="WhatsApp Automation">WhatsApp Automation</MultiSelectItem>
-                                                    <MultiSelectItem value="Social Media Marketing">Social Media Marketing</MultiSelectItem>
-                                                    <MultiSelectItem value="Tracking Video">Tracking Video</MultiSelectItem>
-                                                    <MultiSelectItem value="Lead Generation">Lead Generation</MultiSelectItem>
-                                                    <MultiSelectItem value="Mobile Application Development">Mobile Application Development</MultiSelectItem>
-                                                    <MultiSelectItem value="UI & UX Design">UI & UX Design</MultiSelectItem>
-                                                    <MultiSelectItem value="Content Shooting & Edits">Content Shooting & Edits</MultiSelectItem>
+                                                    {
+                                                        requirement.map((item, index) => (
 
-                                                    <MultiSelectItem value="Logo, Branding & Guidelines">Logo, Branding & Guidelines</MultiSelectItem>
-                                                    <MultiSelectItem value="Start-up Development (App + Software + ERP)">
-                                                        Start-up Development (App + Software + ERP)
-                                                    </MultiSelectItem>
-                                                    <MultiSelectItem value="Enterprise Resources Planning Software">
-                                                        Enterprise Resources Planning Software
-                                                    </MultiSelectItem>
-                                                    <MultiSelectItem value="HRMS Software">HRMS Software</MultiSelectItem>
-                                                    <MultiSelectItem value="Customer Relationship Management - CRM Software">
-                                                        Customer Relationship Management - CRM Software
-                                                    </MultiSelectItem>
-                                                    <MultiSelectItem value="Company Profile & Business Profile">
-                                                        Company Profile & Business Profile
-                                                    </MultiSelectItem>
+                                                            <MultiSelectItem key={index} value={item.value}>{item.lable}</MultiSelectItem>
+                                                        ))
+                                                    }
+
                                                 </MultiSelectGroup>
 
                                             </MultiSelectContent>
@@ -272,12 +431,17 @@ export default function AddLeads() {
                                     {/* problem statument  */}
                                     <div className="col-span-full ">
                                         <label htmlFor="gstno">Client's porblem statment</label>
-                                        <Textarea placeholder="porblem statment.." />
+                                        <Textarea
+                                            onChange={(e) => handleTextArea("problem_statement", e.target.value)}
+                                            placeholder="porblem statment.." />
                                     </div>
 
                                     <div className="col-span-full">
                                         <label htmlFor="gstno">Remark</label>
-                                        <Textarea placeholder="Remark.." />
+                                        <Textarea
+                                            name="remarks"
+                                            onChange={(e) => handleTextArea("remark", e.target.value)}
+                                            placeholder="Remark.." />
                                     </div>
 
                                 </div>
@@ -301,13 +465,13 @@ export default function AddLeads() {
                                     </div>
                                     <div>
                                         {
-                                            formdata?.followUps.length === 0 ? (
+                                            formdata.follow_ups?.length === 0 ? (
                                                 <div>
-                                                    <span>No Follow ups yet....</span>
+                                                    <h4 className="text-gray-400 text-center">No follow up......</h4>
                                                 </div>
                                             ) : (
 
-                                                formdata?.followUps.map((item, index) => (
+                                                formdata.follow_ups?.map((item, index) => (
                                                     <div key={index} className="">
                                                         <div className="mt-2">
                                                             <Input
@@ -323,8 +487,8 @@ export default function AddLeads() {
                                                                 onChange={(e) => updateFollowUp(item.id, 'note', e.target.value)}
                                                                 placeholder="Add your query.."
                                                                 className="border-t-0 rounded-tl-none focus:border-0"
-                                                                
-                                                                />
+
+                                                            />
                                                         </div>
                                                     </div>
                                                 ))
@@ -337,17 +501,17 @@ export default function AddLeads() {
 
                             </section>
 
-
-
                         </div>
 
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className=" mt-5">
                         <DialogClose asChild>
-                            <Button variant={"outline"}>Cancel</Button>
+                            <Button variant={"default"}>Add</Button>
                         </DialogClose>
-                        <Button variant={"default"}>Create</Button>
                     </DialogFooter>
+
+
+
                 </DialogContent>
             </Dialog >
 

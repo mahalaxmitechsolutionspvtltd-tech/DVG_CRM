@@ -3,9 +3,10 @@ import { Button } from "./button"
 import { Separator } from "./separator"
 import { SidebarTrigger } from "./sidebar"
 
-import { Bell, FileChartColumn, Settings } from "lucide-react"
+import { Bell, FileChartColumn, Network, Settings } from "lucide-react"
 import { DropdownMenu } from "./dropdown-menu"
 import { DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
+import { Link } from "react-router-dom"
 
 export function SiteHeader({ currentPath, }: { currentPath: ReactNode }) {
   return (
@@ -19,7 +20,22 @@ export function SiteHeader({ currentPath, }: { currentPath: ReactNode }) {
         <h1 className="text-base font-medium capitalize">{currentPath}</h1>
         <div className="ml-auto flex items-center gap-2">
 
-
+          <div className="flex gap-2">
+            <Link to={'/network'}>
+              <Button variant={"outline"}>
+                <Network /><span className="hidden lg:block xl:block">Network</span>
+              </Button>
+            </Link>
+            <Link to={'/settings'}>
+              <Button variant={"outline"}>
+                <Settings /><span className="hidden lg:block xl:block">Settings</span>
+              </Button>
+            </Link>
+            <Button variant={"outline"}>
+              <FileChartColumn />
+              <span className="hidden lg:block xl:block">Reports</span>
+            </Button>
+          </div>
           <Button variant="outline" asChild size="sm" className="hidden sm:flex">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -35,15 +51,7 @@ export function SiteHeader({ currentPath, }: { currentPath: ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
           </Button>
-          <div className="flex gap-2">
-            <Button variant={"outline"}>
-              <Settings /><span className="hidden lg:block xl:block">Settings</span>
-            </Button>
-            <Button variant={"outline"}>
-              <FileChartColumn />
-             <span className="hidden lg:block xl:block">Reports</span>
-            </Button>
-          </div>
+
         </div>
       </div>
     </header>

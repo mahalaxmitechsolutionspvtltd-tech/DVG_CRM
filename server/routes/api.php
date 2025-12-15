@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\UserAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,5 +9,13 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::post('signup', [UserAuthController::class, 'signUp']);
-Route::post('signin', [UserAuthController::class, 'signIn']);
+//# routes for the authenticaion
+Route::post(uri: 'signup', action: [UserAuthController::class, 'signUp']);
+Route::post(uri: 'signin', action: [UserAuthController::class, 'signIn']);
+
+
+//Routs for the 
+
+Route::post(uri: 'addlead', action: [LeadsController::class, 'addLead']);
+Route::get(uri: 'getleads', action: [LeadsController::class, 'getAllLeads']);
+Route::put(uri: 'updatelead/{sr_no}', action: [LeadsController::class, 'updateLead']);

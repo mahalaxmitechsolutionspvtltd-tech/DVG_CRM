@@ -4,14 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
-
-
 use Illuminate\Http\Request;
-use PhpOption\None;
-
 
 
 class UserAuthController extends Controller
@@ -83,7 +78,13 @@ class UserAuthController extends Controller
 
             $user = User::where('email', $input['email'])->first();
 
+            if (!$user)
+                return ApiResponse::error(message: "Invalid email and password", status: 450);
+
             $validUser = Hash::check($request->password, $user['password']);
+
+            if (!$validUser)
+                return ApiResponse::error(message: "Invalid password", status: 450);
 
             $user->tokens()->delete();
 

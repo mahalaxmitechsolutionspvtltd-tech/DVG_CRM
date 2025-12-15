@@ -6,34 +6,26 @@ import { Button } from "./ui/button";
 import { EyeIcon } from "lucide-react";
 
 import { Badge } from "./ui/badge";
-import type { FollowUp } from "../lib/types";
+import type { Lead } from "../lib/types";
+import { Separator } from "./ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { formateDate } from "../lib/formateDate";
+
 
 
 
 interface childProps {
-    leads: {
-        srNo: string
-           date: string | null
-           companyName: string | null
-           companyType: string | null
-           natureOfBusiness: string | null
-           gstNo: string | null
-           contactPerson1: string | null
-           contactPerson2: string | null
-           contactPerson3: string | null
-           email: string | null
-           location: string | null
-           requiredServices: string[] | null
-           problemStatment: string | null
-           remark: string | null
-           status: string | null
-           followUps: FollowUp[] 
-           
-    }
+    lead: Lead
 }
 
-export default function ViewLeads({ leads }: childProps) {
+export default function ViewLeads({ lead }: childProps) {
 
+    const STATUS_COLOR = {
+        Warm: "bg-amber-500",
+        Hot: "bg-red-500",
+        "Quotation Sent": "bg-green-500",
+        Cold: "bg-blue-500"
+    };
 
     return (
         <>
@@ -45,61 +37,116 @@ export default function ViewLeads({ leads }: childProps) {
                         </div>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md border border-gray-300 lg:max-w-4xl">
-                        <DialogHeader className="border-b border-b-gray-300 py-5">
+                        <DialogHeader >
                             <DialogTitle>Lead Details</DialogTitle>
                             <DialogDescription>
-                                All the leads related details here, it is not editable here.
+                                All the important information about this lead is listed below.
                             </DialogDescription>
                         </DialogHeader>
+                        <Separator />
+                        <div className=" items-center ">
+                            <DialogHeader className=" rounded-md border border-gray-300 p-5 ">
+                                <DialogTitle className="text-xl flex justify-between">
+                                    <div>
+                                        {lead.company_name}
+                                        <DialogDescription>{lead.company_type}</DialogDescription>
+                                        <DialogDescription className="text-sm font-medium">Applied on: {lead.date}</DialogDescription>
+                                    </div>
+                                    <div>
+                                        <Badge className={`${STATUS_COLOR[lead.status] || "bg-blue-500"} rounded-sm`}>
+                                            {lead.status}
+                                        </Badge>
+                                    </div>
+                                </DialogTitle>
 
-                        <div className=" items-center grid grid-cols-3 gap-10">
+                            </DialogHeader>
+                            <div className="grid grid-cols-3 p-5">
+                                <section className="col-span-1 flex flex-col gap-4">
+                                    <div>
+                                        <label className="text-gray-600">GST No</label>
+                                        <span className=" block">{lead.gst_no ? lead.gst_no : "No data available.."}</span>
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-600">Nature of Business</label>
+                                        <span className=" block">{lead.nature_of_business ? lead.nature_of_business : "No data available.."}</span>
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-600">Address</label>
+                                        <span className=" block">{lead.address_line1 ? lead.address_line1 : "No data available.."}</span>
+                                    </div>
+                                </section>
+                                <section className="col-span-1 flex flex-col gap-4">
+                                    <div>
+                                        <label className="text-gray-600">Email</label>
+                                        <span className=" block">{lead.email}</span>
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-600">Remarks </label>
+                                        <span className=" block">{lead.remarks ? lead.remarks : "No data available.."}</span>
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-600">Problem Statement</label>
+                                        <span className=" block">{lead.problem_statement ? lead.problem_statement : "No data available.."}</span>
+                                    </div>
 
 
-                            <div className="col-span-2">
-                                <h1 className="text-blue-600 text-sm ">Company Name</h1>
-                                <span className=" text-lg font-medium leading-5 tracking-wide block">{leads.companyName}</span>
-                                <span className="text-sm text-gray-600">Date : {leads.date}</span>
-                               
-                            </div>
-                            <div className="col-span-1">
-                                <h1 className="text-red-600 text-sm">Status</h1>
-                                <span className="">
-                                    <Badge variant={"default"} className="bg-blue-700 px-5 text-left">{leads.status}</Badge>
-                                </span>
-                            </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">GST No</h1>
-                                <span className="">{leads.gstNo}</span>
-                            </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">Company Type</h1>
-                                <span className="">{leads.companyType}</span>
+                                </section>
+                                <section className="col-span-1 grid gap-4">
+
+                                    <div>
+                                        <label className="text-gray-600">Service Required</label>
+                                        <ul className=" block">
+                                            {
+                                                lead.service_requirements?.map((item, index) => (
+                                                    <Badge variant={"destructive"} key={index}>{item}</Badge>
+                                                ))
+                                            }
+                                        </ul>
+                                    </div>
+
+                                </section>
+
                             </div>
                             <div>
-                                <h1 className="text-blue-600 text-sm">Email</h1>
-                                <span className="">{leads.email}</span>
+                                <DialogDescription>Follow ups</DialogDescription>
+                                <div className=" overflow-x-auto">
+                                    <Table className="w-full border border-gray-50">
+                                        <TableHeader>
+                                            <TableRow className=" border-b border-b-gray-200 rounded-md">
+                                                <TableHead>Date</TableHead>
+                                                <TableHead>Note</TableHead>
+
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody className=" relative">
+                                            {
+                                                lead.follow_ups?.length != 0 ? (
+                                                    lead.follow_ups?.map((item, index) => (
+                                                        <TableRow key={index} className=" border-0">
+                                                            <TableCell>{formateDate(item.date)}</TableCell>
+                                                            <TableCell>{item.note}</TableCell>
+
+                                                        </TableRow>
+                                                    ))
+                                                ) : (
+                                                    <TableRow className="h-20 text-center w-full">
+                                                        <TableCell
+                                                            colSpan={3}
+                                                            className="h-20 text-center font-medium text-gray-500"
+                                                        >
+                                                            No Follow ups...
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            }
+
+                                        </TableBody>
+
+                                    </Table>
+
+
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">Nature of Business</h1>
-                                <span className="">{leads.natureOfBusiness}</span>
-                            </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">Service Required</h1>
-                                <span className="">{leads.requiredServices}</span>
-                            </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">Address</h1>
-                                <span className="">{leads.location}</span>
-                            </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">problemStatment</h1>
-                                <span className="">{leads.problemStatment}</span>
-                            </div>
-                            <div>
-                                <h1 className="text-blue-600 text-sm">Follow up 1</h1>
-                                <span className="">{leads.followUps[0].date}</span>
-                            </div>
-                           
 
                         </div>
                         <DialogFooter className="sm:justify-start">
@@ -109,9 +156,9 @@ export default function ViewLeads({ leads }: childProps) {
                                 </Button>
                             </DialogClose>
                         </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
+                    </DialogContent >
+                </Dialog >
+            </div >
         </>
     )
 }

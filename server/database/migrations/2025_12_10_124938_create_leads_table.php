@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->bigIncrements('sr_no'); // <-- your custom PK
 
             // Basic fields
-            $table->date('date')->nullable();
+            $table->date('date');
             $table->string('company_name')->nullable();
             $table->string('company_type')->nullable();
             $table->string('nature_of_business')->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration {
             $table->text('remarks')->nullable();
 
             // Status & quotation
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->decimal('quotation_amount', 12, 2)->nullable();
             $table->string('quotation_type')->nullable();
 
@@ -49,7 +49,6 @@ return new class extends Migration {
 
             $table->timestamps();
         });
-
     }
 
     /**

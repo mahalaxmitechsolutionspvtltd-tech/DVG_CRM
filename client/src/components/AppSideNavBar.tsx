@@ -23,15 +23,12 @@ import { Building2, Contact, FileText, Handshake, Mail, Network, Settings } from
 import { Link, useLocation } from "react-router-dom"
 
 
+
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "src/assets/avtar.jpg",
-  },
+
   navMain: [
     {
-      title: "Dashboard",
+      title: "D-Dash",
       url: "/",
       icon: IconDashboard,
     },
@@ -41,41 +38,37 @@ const data = {
       icon: IconListDetails,
     },
     {
-      title: "Deals",
-      url: "/deals",
+      title: "Business",
+      url: "/business",
       icon: Handshake,
     },
+  
     {
-      title: "Network",
-      url: "/network",
-      icon: Network,
-    },
-     {
       title: "Contacts",
       url: "/contacts",
       icon: Contact,
     },
-     {
+    {
       title: "Emails",
       url: "/emails",
       icon: Mail,
     },
-       {
+    {
       title: "Companies",
       url: "/companies",
       icon: Building2,
     },
-    {
-      title: "Reports",
-      url: "/reports",
-      icon: FileText,
-    },
-     {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-   
+    // {
+    //   title: "Reports",
+    //   url: "/reports",
+    //   icon: FileText,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "/settings",
+    //   icon: Settings,
+    // },
+
   ],
 
 }
@@ -111,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <Link to={item.url} className={``}>
-                    <SidebarMenuButton tooltip={item.title} className={`${ path==item.url? "bg-gray-300" : "hover:bg-transparent"}  hover:bg-gray-200 transition-all`} >
+                    <SidebarMenuButton tooltip={item.title} className={`${path == item.url ? "bg-gray-300" : "hover:bg-transparent"}  hover:bg-gray-200 transition-all`} >
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
                     </SidebarMenuButton>
@@ -124,7 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
