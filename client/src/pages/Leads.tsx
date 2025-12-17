@@ -2,8 +2,8 @@ import { useLocation, Link } from "react-router-dom"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "../components/ui/breadcrumb";
 
 import { Separator } from "../components/ui/separator";
-import { LeadsTable } from "../components/LeadsTable";
-import AddLeads from "../components/AddLeads";
+import { LeadsTable } from "../components/leads/LeadsTable";
+import AddLeads from "../components/leads/AddLeads";
 // import { useEffect, useState } from "react";
 import { Toaster, toast } from 'sonner'
 export default function Leads() {
@@ -45,7 +45,6 @@ export default function Leads() {
 
                         {/* Add Leads btn */}
                         <div className="my-auto">
-
                             <AddLeads onSuccess={handleSuccess} />
                         </div>
                     </div>

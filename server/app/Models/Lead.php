@@ -20,6 +20,8 @@ class Lead extends Model
         "address_line1",
         "service_requirements",
         "problem_statement",
+        "quotation_amount",
+        "quotation_type",
         "remarks",
         "follow_ups",
         "status",

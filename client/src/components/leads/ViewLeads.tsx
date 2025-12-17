@@ -1,15 +1,15 @@
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 
-import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
+import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Button } from "../ui/button";
 
 import { EyeIcon } from "lucide-react";
 
-import { Badge } from "./ui/badge";
-import type { Lead } from "../lib/types";
-import { Separator } from "./ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { formateDate } from "../lib/formateDate";
+import { Badge } from "../ui/badge";
+import type { Lead } from "../../lib/types";
+import { Separator } from "../ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { formateDate } from "../../lib/formateDate";
 
 
 

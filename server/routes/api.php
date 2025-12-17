@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DealController;
 use App\Http\Controllers\LeadsController;
 use App\Http\Controllers\UserAuthController;
 use Illuminate\Support\Facades\Route;
@@ -19,3 +20,6 @@ Route::post(uri: 'signin', action: [UserAuthController::class, 'signIn']);
 Route::post(uri: 'addlead', action: [LeadsController::class, 'addLead']);
 Route::get(uri: 'getleads', action: [LeadsController::class, 'getAllLeads']);
 Route::put(uri: 'updatelead/{sr_no}', action: [LeadsController::class, 'updateLead']);
+
+// Deals
+Route::get(uri: 'getdeals', action: [DealController::class, 'getDeals']);

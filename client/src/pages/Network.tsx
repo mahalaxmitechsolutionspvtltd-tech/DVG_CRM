@@ -1,7 +1,41 @@
 
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '../components/ui/breadcrumb';
+import { Link, useLocation } from 'react-router-dom';
+import AddDeals from '../components/deals/AddDeals';
+import AddNetwok from '../components/network/AddNetwok';
 
-export default function Network() {
+export default function Networks() {
+  const currentPath = useLocation();
+  const path = currentPath.pathname.slice(1);
   return (
-    <div>Network</div>
+    <>
+      <div>
+        <div>
+          <div className=" md:flex lg:flex xl:flex 2xl:flex justify-between">
+            <Breadcrumb className="my-auto">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild />
+                  <Link to={"/"} className=" text-blue-400">Dashboard</Link>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild />
+                  <Link to={"#"} className=" text-gray-400 capitalize">{path}</Link>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            {/* Add Leads btn */}
+            <div className="my-auto">
+              <AddNetwok />
+            </div>
+          </div>
+        </div>
+        <div>
+          {/* <DealsTable /> */}
+        </div>
+      </div>
+    </>
   )
 }

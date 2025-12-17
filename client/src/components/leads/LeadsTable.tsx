@@ -14,8 +14,8 @@ import {
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, CopyIcon, Delete, Eye, MoreHorizontal } from "lucide-react"
 
-import { Button } from "./ui/button"
-import { Checkbox } from "./ui/checkbox"
+import { Button } from "../ui/button"
+import { Checkbox } from "../ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -23,8 +23,8 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
-import { Input } from "./ui/input"
+} from "../ui/dropdown-menu"
+import { Input } from "../ui/input"
 import {
     Table,
     TableBody,
@@ -32,19 +32,19 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "./ui/table"
+} from "../ui/table"
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
-import { formateDate } from "../lib/formateDate"
+import { formateDate } from "../../lib/formateDate"
 import ViewLeads from "./ViewLeads"
-import { Badge } from "./ui/badge"
+import { Badge } from "../ui/badge"
 import EditLead from "./EditLead"
-import type { Lead } from "../lib/types"
-import { getLeadsHandler } from "../apiHandlers/LeadHandler"
-import ShowFollowup from "./showFollowup"
-import { Skeleton } from "./ui/skeleton"
-import { Popover, PopoverTrigger } from "./ui/popover"
+import type { Lead } from "../../lib/types"
+import { getLeadsHandler } from "../../apiHandlers/LeadHandler"
+import ShowFollowup from "../showFollowup"
+import { Skeleton } from "../ui/skeleton"
+import { Popover, PopoverTrigger } from "../ui/popover"
 import { PopoverContent } from "@radix-ui/react-popover"
-import { Separator } from "./ui/separator"
+import { Separator } from "../ui/separator"
 
 
 export function LeadsTable() {
@@ -241,7 +241,7 @@ export function LeadsTable() {
                     return <Badge variant={"secondary"} className="px-5 rounded-sm bg-orange-400 text-white">{Status}</Badge>
 
                 }
-                if (Status === "Quatation sent") {
+                if (Status === "Quotation sent") {
                     return <Badge variant={"secondary"} className="px-5 rounded-sm bg-green-400 text-white">{Status}</Badge>
 
                 }
@@ -388,10 +388,10 @@ export function LeadsTable() {
                     <TableHeader className=" h-14">
                         {
                             table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id} className="border-b border-b-gray-300">
+                                <TableRow key={headerGroup.id} className="border-b border-b-gray-300 ">
                                     {headerGroup.headers.map((header) => {
                                         return (
-                                            <TableHead key={header.id}>
+                                            <TableHead key={header.id} align="center" className="">
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
@@ -404,14 +404,14 @@ export function LeadsTable() {
                                 </TableRow>
                             ))}
                     </TableHeader>
-                    <TableBody className="scrollbar-width-sm">
+                    <TableBody className="scrollbar-width-sm ">
 
                         {
                             loader ? (
                                 Array.from({ length: 5 }).map((_, i) => (
-                                    <TableRow key={i} className="h-14 border-b border-b-gray-300">
+                                    <TableRow key={i} className="h-14 border-b text-center border-b-gray-300">
                                         {columns.map((_, index) => (
-                                            <TableCell key={index} className="py-2">
+                                            <TableCell key={index} className=" py-2">
                                                 <Skeleton className="h-4 w-full rounded" />
                                             </TableCell>
                                         ))}
@@ -427,7 +427,7 @@ export function LeadsTable() {
                                             className="border-b border-b-gray-300 border-r border-r-gray-300 h-14"
                                         >
                                             {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id} align="left">
+                                                <TableCell key={cell.id}>
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()
@@ -439,8 +439,9 @@ export function LeadsTable() {
                                 ) : (
                                     <TableRow>
                                         <TableCell
+                                            align="center"
                                             colSpan={columns.length}
-                                            className="h-24 text-center"
+                                            className="h-24"
                                         >
                                             No results.
                                         </TableCell>

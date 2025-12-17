@@ -7,10 +7,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectI
 import { MultiSelect, MultiSelectContent, MultiSelectGroup, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "./ui/multi-select";
 import { Textarea } from "./ui/textarea";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { useEffect, useState, type ChangeEventHandler } from "react";
+import {  useState } from "react";
 import type { Lead } from "../lib/types";
 import type { FollowUp } from "../lib/types";
 import { updateLeadHandler } from "../apiHandlers/LeadHandler";
+import { Separator } from "./ui/separator";
 // import { updateLeadHandler } from "../apiHandlers/LeadHandler";
 
 
@@ -66,10 +67,10 @@ interface childProps {
 
 
 
-export default function EditLead({ onSuccess,leads }: childProps) {
+export default function EditLead({ onSuccess, leads }: childProps) {
     const [formdata, setFormData] = useState<Lead>(leads);
     const [isNewValue, setNewValue] = useState(false);
-
+    const [isDeal, setDeal] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
@@ -127,7 +128,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
 
             if (resp?.data.success) {
                 onSuccess(true);
-            } 
+            }
         }
 
     }
@@ -142,7 +143,6 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                     </div>
                 </DialogTrigger>
                 <DialogContent className="p-10 lg:max-w-7xl border bg-white border-gray-400 max-h-[90vh] overflow-y-auto  hide-scrollbar" >
-
 
                     <DialogHeader>
                         <DialogTitle className="text-center">Add Leads</DialogTitle>
@@ -159,7 +159,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                 </div>
                                 <div className="p-3">
                                     <div className="my-3">
-                                        <label htmlFor="cname">Company name</label>
+                                        <label className="text-sm" htmlFor="cname">Company name</label>
                                         <Input
                                             value={formdata.company_name ?? ""}
                                             onKeyDown={(e) => e.stopPropagation()}
@@ -172,7 +172,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                     <div className="grid grid-col-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
                                         {/* company type */}
                                         <div>
-                                            <label htmlFor="">Company type</label>
+                                            <label className="text-sm" htmlFor="">Company type</label>
                                             <Select
                                                 value={formdata.company_type ?? ""}
                                                 onValueChange={(value) => handleSelectChange("company_type", value)}
@@ -197,7 +197,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                         </div>
                                         {/* company nature */}
                                         <div>
-                                            <label htmlFor="">Nature of Business</label>
+                                            <label className="text-sm" htmlFor="">Nature of Business</label>
 
                                             {!isNewValue ? (
                                                 <Select
@@ -252,7 +252,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
 
                                     {/* GST number */}
                                     <div className="my-3">
-                                        <label htmlFor="gstno">GST Number(optional)</label>
+                                        <label className="text-sm" htmlFor="gstno">GST Number(optional)</label>
                                         <Input
                                             value={formdata.gst_no ?? ""}
                                             name="gst_no"
@@ -273,7 +273,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                 {/*person contacts */}
                                 <div className="p-3 grid gap-3">
                                     <div>
-                                        <label htmlFor="gstno">Primary Contact 1</label>
+                                        <label className="text-sm" htmlFor="gstno">Primary Contact 1</label>
                                         <Input
                                             value={formdata.contact1_name ?? ""}
                                             name="contact1_name"
@@ -286,7 +286,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                     </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
                                         <div >
-                                            <label htmlFor="gstno">Secondary Contact </label>
+                                            <label className="text-sm" htmlFor="gstno">Secondary Contact </label>
                                             <Input
                                                 value={formdata.contact2_name ?? ""}
                                                 name="contact2_name"
@@ -296,7 +296,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                             />
                                         </div>
                                         <div >
-                                            <label htmlFor="gstno">Tertiary Contact </label>
+                                            <label className="text-sm" htmlFor="gstno">Tertiary Contact </label>
                                             <Input
                                                 value={formdata.contact3_name ?? ""}
                                                 name="contact3_name"
@@ -307,7 +307,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                     </div>
                                     {/* email */}
                                     <div>
-                                        <label htmlFor="gstno">Email</label>
+                                        <label className="text-sm" htmlFor="gstno">Email</label>
                                         <Input
                                             value={formdata.email ?? ""}
                                             name="email"
@@ -332,7 +332,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                 {/*person contacts */}
                                 <div className="p-3 grid gap-3">
                                     <div>
-                                        <label htmlFor="location">Location</label>
+                                        <label className="text-sm" htmlFor="location">Location</label>
                                         <Input
                                             value={formdata.address_line1 ?? ""}
                                             name="address_line1"
@@ -359,11 +359,15 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                 {/*Status */}
                                 <div className="p-3 grid gap-3">
                                     <div>
-                                        <label htmlFor="status">Status</label>
+                                        <label className="text-sm" htmlFor="status">Status</label>
                                         <Select
-                                            value={formdata.status ?? ""}
+                                            value={formdata?.status}
                                             name="status"
-                                            onValueChange={(value) => handleSelectChange("status", value)}
+                                            onValueChange={(value) => {
+                                                value === "Quotation sent" ? setDeal(true) : setDeal(false),
+                                                   
+                                                        handleSelectChange("status", value)
+                                            }}
                                         >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Status" />
@@ -374,7 +378,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                                     <SelectItem value="Cold">Cold</SelectItem>
                                                     <SelectItem value="Warm">Warm </SelectItem>
                                                     <SelectItem value="Hot">Hot</SelectItem>
-                                                    <SelectItem value="Marketing Agency">Quotation sent</SelectItem>
+                                                    <SelectItem value="Quotation sent">Quotation sent</SelectItem>
 
                                                 </SelectGroup>
                                             </SelectContent>
@@ -382,6 +386,41 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                     </div>
 
                                 </div>
+                                {
+                                    isDeal ? (
+                                        <div className="p-3 grid gap-3">
+                                            <Separator />
+                                            <div>
+                                                <label className="text-sm">Deal </label>
+
+                                                <section className="flex gap-2">
+                                                    <div>
+                                                        <label className="text-sm" htmlFor="bussiess value">Bussiness value</label>
+                                                        <Input onChange={handleInputChange} name="quotation_amount" id="bussiess value" placeholder="₹" type="number" className="" />
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-sm" htmlFor="bussiess value">Steps</label>
+                                                        <Select
+                                                            name="status"
+                                                            onValueChange={(value) => handleSelectChange("quotation_type", value)}
+                                                        >
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="One time /monthly" />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="border border-gray-300">
+                                                                <SelectGroup>
+                                                                    <SelectLabel>select one of them</SelectLabel>
+                                                                    <SelectItem value="onetime">Onetime</SelectItem>
+                                                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                                                </SelectGroup>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        </div>
+                                    ) : ""
+                                }
 
                             </section>
 
@@ -395,7 +434,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
 
                                     {/*Requirements */}
                                     <div className="">
-                                        <label htmlFor="">Required Services</label>
+                                        <label className="text-sm" htmlFor="">Required Services</label>
                                         <MultiSelect
 
                                             onValuesChange={(e) => setFormData((prev) => ({
@@ -429,7 +468,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
 
                                     {/* problem statument  */}
                                     <div className="col-span-full ">
-                                        <label htmlFor="gstno">Client's porblem statment</label>
+                                        <label className="text-sm" htmlFor="gstno">Client's porblem statment</label>
                                         <Textarea
                                             value={formdata.problem_statement ?? ""}
                                             onChange={(e) => handleTextArea("problem_statement", e.target.value)}
@@ -439,7 +478,7 @@ export default function EditLead({ onSuccess,leads }: childProps) {
                                     </div>
 
                                     <div className="col-span-full">
-                                        <label htmlFor="gstno">Remark</label>
+                                        <label className="text-sm" htmlFor="gstno">Remark</label>
                                         <Textarea
                                             value={formdata.remarks ?? ""}
                                             name="remarks"
@@ -518,10 +557,10 @@ export default function EditLead({ onSuccess,leads }: childProps) {
 
 
 
-                </DialogContent>
+                </DialogContent >
             </Dialog >
 
-        </div>
+        </div >
     )
 }
 

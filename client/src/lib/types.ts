@@ -54,8 +54,8 @@ export type LeadStatus =
     | 'Quotation Sent';
 
 export type QuotationType =
-    | 'One Time'
-    | 'Monthly';
+    | 'onetime'
+    | 'monthly';
 
 export interface FollowUp {
     id: string;
@@ -91,10 +91,23 @@ export interface Lead {
     service_requirements: string[] | null;
     remarks?: string | null;
     status: LeadStatus;
-    quotationAmount?: number | null;
-    quotationType?: QuotationType;
+    quotation_amount?: number | null;
+    quotation_type?: QuotationType;
 
     follow_ups: FollowUp[] | null;
     last_updated: number | null;
 }
 
+export type TypeoFonnect = 'HVT' | 'HII' | 'BA';
+export interface IndustryConnects {
+    name: string | null
+}
+
+
+export interface Netwoks {
+    name: string | null,
+    email: string | null,
+    contact: string | null,
+    type_of_connect: TypeoFonnect,
+    industry_connects: IndustryConnects[] | null
+}

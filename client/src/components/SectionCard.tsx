@@ -58,8 +58,8 @@ export default function SectionCards() {
 
                                 </CardTitle>
                                 <CardAction>
-                                    <div className="p-2 bg-gray-200 rounded-lg">
-                                        < items.icon className="w-4 h-4  text-red-500" />
+                                    <div className="p-2 bg-gray-200 rounded-full">
+                                       <items.icon className="w-8 h-8 stroke-1 text-blue-600" />
                                     </div>
 
                                 </CardAction>
