@@ -261,7 +261,7 @@ export function LeadsTable({ refreshKey }: childProps) {
 
                 }
                 if (Status === "Hot") {
-                    return <p className=" font-medium  text-red-800 ">{Status}</p>
+                    return <p className=" font-medium  text-red-600 ">{Status}</p>
 
                 }
                 if (Status === "Warm") {
@@ -270,6 +270,10 @@ export function LeadsTable({ refreshKey }: childProps) {
                 }
                 if (Status === "Quotation sent" && "Quotation Sent") {
                     return <p className=" font-medium  text-green-600 ">{Status}</p>
+
+                }
+                if (Status === "Lead dropped") {
+                    return <p className=" font-medium  text-red-900 ">{Status}</p>
 
                 }
             }
@@ -286,6 +290,53 @@ export function LeadsTable({ refreshKey }: childProps) {
                 )
             }
         },
+        {
+            id: "actions",
+            header: "Deal Status",
+            enableHiding: true,
+            cell: ({ row }) => {
+                const lead = row.original;
+                return (
+                    <>
+
+                        <div className="flex gap-3">
+
+                            {
+                                lead.status === "Quotation sent" ?
+                                    (
+                                        <AlertDialog open={open}>
+                                            <AlertDialogTrigger asChild>
+                                                <Button onClick={() => setOpen(true)} className="bg-blue-500 hover:bg-blue-600" size={"sm"}>
+                                                    <Handshake className="" />Deal done ?
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent className="border border-gray-300">
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Convert to deal</AlertDialogTitle>
+                                                    <AlertDialogDescription>  This will  convert your
+                                                        lead  into deal and remove from the existing lead table, onece you convert lead into deal then it will redirected to the deal table</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleConverDeal(lead)}>
+                                                        {
+                                                            loader ? (<Spinner />) : "Convert"
+                                                        }
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    ) : (
+                                        <Button variant={"outline"} disabled size={"sm"}>
+                                            <Handshake className="" /> Pending
+                                        </Button>
+                                    )
+                            }
+                        </div>
+                    </>
+                )
+            }
+        },
 
         {
             id: "actions",
@@ -295,10 +346,7 @@ export function LeadsTable({ refreshKey }: childProps) {
                 const lead = row.original;
                 return (
                     <>
-
                         <div className="flex gap-3">
-
-
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -329,42 +377,12 @@ export function LeadsTable({ refreshKey }: childProps) {
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            {
-                                lead.status === "Quotation sent" ?
-                                    (
-                                        <AlertDialog open={open}>
-                                            <AlertDialogTrigger asChild>
-                                                <Button onClick={() => setOpen(true)} className="bg-blue-500 hover:bg-blue-600" size={"sm"}>
-                                                    <Handshake className="" /> done
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent className="border border-gray-300">
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Convert to deal</AlertDialogTitle>
-                                                    <AlertDialogDescription>  This will  convert your
-                                                        lead  into deal and remove from the existing lead table, onece you convert lead into deal then it will redirected to the deal table</AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleConverDeal(lead)}>
-                                                        {
-                                                            loader ? (<Spinner />) : "Convert"
-                                                        }
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    ) : (
-                                        <Button variant={"outline"} disabled size={"sm"}>
-                                            <Handshake className="" />--
-                                        </Button>
-                                    )
-                            }
                         </div>
                     </>
                 )
             }
-        }
+        },
+
 
     ]
 
@@ -463,9 +481,9 @@ export function LeadsTable({ refreshKey }: childProps) {
                         {
                             table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id} className="border-b border-b-gray-300 ">
-                                    {headerGroup.headers.map((header) => {
+                                    {headerGroup.headers.map((header, index) => {
                                         return (
-                                            <TableHead key={header.id} align="center" className="">
+                                            <TableHead key={index} align="center" className="">
                                                 {header.isPlaceholder
                                                     ? null
                                                     : flexRender(
@@ -500,8 +518,8 @@ export function LeadsTable({ refreshKey }: childProps) {
                                             data-state={row.getIsSelected() && "selected"}
                                             className="border-b border-b-gray-300 border-r border-r-gray-300 h-14"
                                         >
-                                            {row.getVisibleCells().map((cell) => (
-                                                <TableCell key={cell.id}>
+                                            {row.getVisibleCells().map((cell, index) => (
+                                                <TableCell key={index}>
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()

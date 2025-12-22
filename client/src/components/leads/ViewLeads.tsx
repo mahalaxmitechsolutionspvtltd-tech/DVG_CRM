@@ -3,7 +3,7 @@ import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 
-import { EyeIcon } from "lucide-react";
+import { Building, EyeIcon, HandPlatter, IdCard, Mail, MapPin, MessageCircleDashed, MessageSquareQuote, Phone, ReceiptText, UserRound } from "lucide-react";
 
 import { Badge } from "../ui/badge";
 import type { Lead } from "../../lib/types";
@@ -14,22 +14,27 @@ import { formateDate } from "../../lib/formateDate";
 
 
 
+
+
+
 interface childProps {
     lead: Lead
 }
 
 export default function ViewLeads({ lead }: childProps) {
+    console.log(lead);
+
 
     return (
         <>
             <div>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <div className="flex gap-2">
+                <Dialog >
+                    <DialogTrigger asChild  >
+                        <div className="flex gap-2" >
                             <EyeIcon className="my-auto " />View lead
                         </div>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md border border-gray-300 lg:max-w-4xl">
+                    <DialogContent className="sm:max-w-md border border-gray-300 lg:max-w-6xl">
                         <DialogHeader >
                             <DialogTitle>Lead Details</DialogTitle>
                             <DialogDescription>
@@ -45,69 +50,117 @@ export default function ViewLeads({ lead }: childProps) {
                                         <DialogDescription>{lead.company_type}</DialogDescription>
                                         <DialogDescription className="text-sm font-medium">Applied on: {lead.date}</DialogDescription>
                                     </div>
-                                    <div>
-                                        <Badge className={` rounded-sm`}>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        <Badge variant={"default"} className={` col-span-1 w-full `}>
                                             {lead.status}
                                         </Badge>
+                                        <div className="">
+                                            <DialogDescription className="text-sm font-medium flex"><MapPin size={18} /> {lead.address_line1}</DialogDescription>
+
+                                        </div>
                                     </div>
                                 </DialogTitle>
 
                             </DialogHeader>
-                            <div className="grid grid-cols-3 p-5">
-                                <section className="col-span-1 flex flex-col gap-4">
+                            <div className="p-5 grid grid-cols-1 gap-5">
+                                <section className=" grid grid-cols-3  gap-3">
                                     <div>
-                                        <label className="text-gray-600">GST No</label>
-                                        <span className=" block">{lead.gst_no ? lead.gst_no : "No data available.."}</span>
+                                        <label className="text-sm text-gray-600 flex gap-1"><UserRound size={18} /> Primary person name</label>
+                                        <span className=" block" >{lead.primary_person_name ?? ""}</span>
                                     </div>
                                     <div>
-                                        <label className="text-gray-600">Nature of Business</label>
+                                        <label className="text-gray-600 text-sm flex gap-1"><Mail size={18} />Primary person Email </label>
+                                        <span className=" block">{lead.primary_person_email ?? ""}</span>
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-600 text-sm flex gap-1"><Phone size={18} />Primary person  number </label>
+                                        <span className=" block">{lead.primary_person_contact ?? ""}</span>
+                                    </div>
+
+                                </section>
+                                {
+                                    lead.secondary_person_name && lead.secondary_person_email && lead.secondary_person_contact ?
+                                        <section className=" grid grid-cols-3  gap-3">
+
+                                            <div>
+                                                <label className="text-sm text-gray-600 flex gap-1"><UserRound size={18} />Secondary person name</label>
+                                                <span className=" block" >{lead.secondary_person_name ?? ""}</span>
+                                            </div>
+                                            <div>
+                                                <label className="text-gray-600 text-sm flex gap-1"><Mail size={18} />Secondary person Email </label>
+                                                <span className=" block">{lead.secondary_person_email ?? ""}</span>
+                                            </div>
+                                            <div>
+                                                <label className="text-gray-600 text-sm flex gap-1"><Phone size={18} />Secondary person  number </label>
+                                                <span className=" block">{lead.secondary_person_contact ?? ""}</span>
+                                            </div>
+
+                                        </section> : ""
+                                }
+                                {
+
+                                    lead.tertiary_person_name && lead.tertiary_person_email && lead.tertiary_person_contact ?
+                                        <section className="grid grid-cols-3  gap-3">
+                                            <div>
+                                                <label className="text-sm text-gray-600  flex gap-1"><UserRound size={18} />Secondary person name</label>
+                                                <span className=" block" >{lead.tertiary_person_name ?? ""}</span>
+                                            </div>
+                                            <div>
+                                                <label className="text-gray-600 text-sm flex gap-1"><Mail size={18} />Secondary person Email </label>
+                                                <span className=" block">{lead.tertiary_person_email ?? ""}</span>
+                                            </div>
+                                            <div>
+                                                <label className="text-gray-600 text-sm flex gap-1"><Phone size={18} />Secondary person  number </label>
+                                                <span className=" block">{lead.tertiary_person_contact ?? ""}</span>
+                                            </div>
+                                        </section> : ""
+                                }
+
+                                <section className=" grid grid-cols-3  gap-3">
+                                    <div>
+                                        <label className="text-gray-600 text-sm flex gap-1"><Building size={18} /> Nature of Business</label>
                                         <span className=" block">{lead.nature_of_business ? lead.nature_of_business : "No data available.."}</span>
                                     </div>
                                     <div>
-                                        <label className="text-gray-600">Address</label>
-                                        <span className=" block">{lead.address_line1 ? lead.address_line1 : "No data available.."}</span>
-                                    </div>
-                                </section>
-                                <section className="col-span-1 flex flex-col gap-4">
-                                    <div>
-                                        <label className="text-gray-600">Email</label>
-                                        <span className=" block">{lead.primary_person_email}</span>
+                                        <label className="text-gray-600 text-sm flex gap-1"><IdCard size={18} /> Pan number</label>
+                                        <span className=" block">{lead.pan_number ? lead.pan_number : "No data available.."}</span>
                                     </div>
                                     <div>
-                                        <label className="text-gray-600">Remarks </label>
-                                        <span className=" block">{lead.remarks ? lead.remarks : "No data available.."}</span>
+                                        <label className="text-gray-600 text-sm flex gap-1"><ReceiptText size={18} /> Gst number</label>
+                                        <span className=" block">{lead.gst_no ? lead.gst_no : "No data available.."}</span>
                                     </div>
-                                    <div>
-                                        <label className="text-gray-600">Problem Statement</label>
-                                        <span className=" block">{lead.problem_statement ? lead.problem_statement : "No data available.."}</span>
-                                    </div>
-
 
                                 </section>
-                                <section className="col-span-1 grid gap-4">
-
+                                <section className=" grid grid-cols-3  gap-3">
                                     <div>
-                                        <label className="text-gray-600">Service Required</label>
-                                        <ul className=" block">
-                                            {
-                                                lead.service_requirements?.map((item, index) => (
-                                                    <Badge variant={"destructive"} key={index}>{item}</Badge>
-                                                ))
-                                            }
-                                        </ul>
+                                        <label className="text-gray-600 text-sm flex gap-1"><MessageCircleDashed size={18} /> Problem statement</label>
+                                        <span className=" block">"{lead.problem_statement ? lead.remarks : "No data available.."}"</span>
                                     </div>
+                                    <div>
+                                        <label className="text-gray-600 text-sm flex gap-1"><MessageSquareQuote size={18} /> Remark</label>
+                                        <span className=" block">"{lead.remarks ? lead.remarks : "No data available.."}"</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-1">
+                                        <label className="text-gray-600 text-sm flex gap-1"><HandPlatter size={18} />Service requirements </label>
+                                        {
+                                            lead.service_requirements?.map((item) => (
+                                                <Badge variant={"outline"} className="boder  border-gray-400 ">{item}</Badge>
+                                            ))
 
+                                        }
+                                    </div>
                                 </section>
 
                             </div>
                             <div>
                                 <DialogDescription>Follow ups</DialogDescription>
                                 <div className=" overflow-x-auto">
-                                    <Table className="w-full border border-gray-50">
+                                    <Table className="w-full border border-gray-300">
                                         <TableHeader>
-                                            <TableRow className=" border-b border-b-gray-200 rounded-md">
+                                            <TableRow className=" border-b border-b-gray-200 ">
                                                 <TableHead>Date</TableHead>
                                                 <TableHead>Note</TableHead>
+                                                <TableHead>Expenses</TableHead>
 
                                             </TableRow>
                                         </TableHeader>
@@ -118,6 +171,7 @@ export default function ViewLeads({ lead }: childProps) {
                                                         <TableRow key={index} className=" border-0">
                                                             <TableCell>{formateDate(item.date)}</TableCell>
                                                             <TableCell>{item.note}</TableCell>
+                                                            <TableCell>{item.expenses}</TableCell>
 
                                                         </TableRow>
                                                     ))

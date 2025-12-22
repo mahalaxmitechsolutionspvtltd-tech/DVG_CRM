@@ -24,12 +24,13 @@ class Lead extends Model
         "tertiary_person_name",
         "tertiary_person_contact",
         "tertiary_person_email",
-        
+
         "email",
         "gst_no",
         "pan_number",
         "address_line1",
         "service_requirements",
+        "drop_lead_reason",
         "problem_statement",
         "quotation_amount",
         "quotation_type",

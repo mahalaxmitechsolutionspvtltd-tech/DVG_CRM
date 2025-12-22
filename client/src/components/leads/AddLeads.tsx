@@ -608,7 +608,7 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                 <Plus />Add Follow up's
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="border border-gray-300 rounded-sm lg:max-w-lg h-3/4 ">
+                                        <DialogContent className="border overflow-clip border-gray-300 rounded-sm lg:max-w-lg min-h-1/4 max-h-2/4">
                                             <DialogHeader>
                                                 <DialogTitle>Follow up</DialogTitle>
                                             </DialogHeader>
@@ -624,6 +624,7 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                             formdata.follow_ups?.map((item, index) => (
                                                                 <div key={index} className="">
                                                                     <div className="mt-2 border border-gray-200 rounded-sm relative">
+                                                                        <Badge className="w-4 h-4 text-sm bg-gray-400 absolute right-10 top-2" variant={"default"}>{index + 1}</Badge>
                                                                         <Badge className="w-4 h-4 text-sm bg-gray-400 absolute right-10 top-2" variant={"default"}>{index + 1}</Badge>
                                                                         <Input
                                                                             value={item.date}

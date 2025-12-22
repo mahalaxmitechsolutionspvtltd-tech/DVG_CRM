@@ -6,13 +6,13 @@ import { Input } from "../ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel } from "../ui/select";
 import { MultiSelect, MultiSelectContent, MultiSelectGroup, MultiSelectItem, MultiSelectTrigger, MultiSelectValue } from "../ui/multi-select";
 import { Textarea } from "../ui/textarea";
-import { DialogClose } from "@radix-ui/react-dialog";
+import { DialogClose, DialogDescription } from "@radix-ui/react-dialog";
 
 import type { Lead } from "../../lib/types";
 import type { FollowUp } from "../../lib/types";
 import { updateLeadHandler } from "../../apiHandlers/LeadHandler";
 import { Separator } from "../ui/separator";
-import { FieldLabel } from "../ui/field";
+import { Field, FieldLabel } from "../ui/field";
 import { Badge } from "../ui/badge";
 import { Spinner } from "../ui/spinner";
 import { useState } from "react";
@@ -78,7 +78,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
     const [errors, setFormErrors] = useState<Lead>();
     const [open, setOpen] = useState(false);
     const [loader, setLoader] = useState(false);
-
+    const [openDropLead, setOpenDropLead] = useState<boolean>(false);
 
 
 
@@ -144,8 +144,6 @@ export default function EditLead({ onSuccess, leads }: childProps) {
             setFormErrors(resp.data.errors)
         }
     }
-
-
     return (
 
         <div className=" overflow-auto overflow-y-auto">
@@ -155,7 +153,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                         <Edit className="my-auto " />Edit Lead
                     </div>
                 </DialogTrigger>
-                <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className=" lg:max-w-7xl border bg-white border-gray-400 max-h-[95vh] overflow-y-auto  hide-scrollbar">
+                <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className=" lg:max-w-7xl border bg-white border-gray-400    hide-scrollbar">
 
                     <DialogHeader>
                         <DialogTitle className="text-center">Edite Leads</DialogTitle>
@@ -479,7 +477,12 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                         <Select
                                             name="status"
                                             value={formdata.status ?? ""}
-                                            onValueChange={(value) => { value == "Quotation sent" ? setDeal(true) : setDeal(false), handleSelectChange("status", value) }}
+                                            onValueChange={(value) => {
+                                                value == "Quotation sent" ? setDeal(true) : setDeal(false),
+                                                    value == "Lead dropped" ? setOpenDropLead(true) : setOpenDropLead(false);
+
+                                                handleSelectChange("status", value)
+                                            }}
                                         >
                                             <SelectTrigger className="w-full">
                                                 <SelectValue placeholder="Status" />
@@ -491,8 +494,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                                     <SelectItem value="Warm">Warm </SelectItem>
                                                     <SelectItem value="Hot">Hot</SelectItem>
                                                     <SelectItem value="Quotation sent">Quotation sent</SelectItem>
-                                                    {/* <SelectItem value="Deal done">Deal done</SelectItem> */}
-
+                                                    <SelectItem value="Lead dropped">Lead drop</SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>
@@ -515,7 +517,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                                             onChange={handleInputChange}
                                                             name="quotation_amount"
                                                             id="bussiess value"
-                                                            placeholder="₹" type="number"  />
+                                                            placeholder="₹" type="number" />
                                                     </div>
                                                     <div>
 
@@ -543,6 +545,35 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                         </div>
                                     ) : ""
                                 }
+
+                                {/* Drop lead reason and dialog */}
+
+                                <Dialog open={openDropLead} onOpenChange={setOpenDropLead}>
+                                    <DialogContent className=" border border-gray-300">
+                                        <DialogHeader>
+                                            <DialogTitle className="">Drop lead</DialogTitle>
+                                            <DialogDescription className="text-gray-700">Give the proper reason ,why are you droping the lead.</DialogDescription>
+                                        </DialogHeader>
+                                        <div>
+                                            <Field>
+                                                <FieldLabel>Reason for Drop lead</FieldLabel>
+                                                <Textarea
+                                                    name='drop_lead_reason'
+                                                    onChange={(e) => handleTextArea('drop_lead_reason', e.target.value)}
+                                                />
+                                            </Field>
+                                        </div>
+                                        <DialogFooter>
+                                            <Button onClick={() => setOpenDropLead(false)} variant={"outline"}>Close</Button>
+                                            <Button onClick={handleSubmit}>
+                                                {
+                                                    loader ? <Spinner /> : " Drop lead"
+
+                                                }
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
 
                             </section>
 
@@ -631,7 +662,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                                 <Plus />Add Follow up's
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="border border-gray-300 rounded-sm lg:max-w-lg h-3/4 ">
+                                        <DialogContent className="border border-gray-300 rounded-sm overflow-clip lg:max-w-lg min-h-1/4 max-h-22/4 py-10">
                                             <DialogHeader>
                                                 <DialogTitle>Follow up</DialogTitle>
                                             </DialogHeader>

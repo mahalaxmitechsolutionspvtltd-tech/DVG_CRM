@@ -40,6 +40,7 @@ import { useEffect } from "react"
 import { type Deal } from "../../lib/types"
 import { formateDate } from "../../lib/formateDate"
 import { Badge } from "../ui/badge"
+import { Skeleton } from "../ui/skeleton"
 
 
 
@@ -50,6 +51,7 @@ export function DealsTable() {
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
     const [data, setDeals] = React.useState<Deal[]>([]);
+    const [loader, setLoader] = React.useState<boolean>(false);
 
     const columns: ColumnDef<Deal>[] = [
         {
@@ -82,7 +84,7 @@ export function DealsTable() {
         //     accessorKey: "lead_sr_no",
         //     header: "Deal id",
         //     enableHiding: true,
-            
+
         //     cell: ({ row }) => (
         //         <div className="capitalize">{row.getValue("lead_sr_no")}</div>
         //     ),
@@ -268,10 +270,12 @@ export function DealsTable() {
         const resp = await getDealsHandler();
         if (resp.data.success) {
             setDeals(resp.data.data)
+            setLoader(false)
         }
     }
     // console.log("actual deals", data);
     useEffect(() => {
+        setLoader(true);
         handleGetallDeals();
     }, [])
 
@@ -341,36 +345,49 @@ export function DealsTable() {
                         ))}
                     </TableHeader>
                     <TableBody >
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                    className="border-b border-b-gray-300"
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}
+                        {
+                            loader ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <TableRow key={i} className="h-14 border-b text-center border-b-gray-300">
+                                        {columns.map((_, index) => (
+                                            <TableCell key={index} className=" py-2">
+                                                <Skeleton className="h-4 w-full rounded" />
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                        className="border-b border-b-gray-300"
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}
 
-                                        >
+                                            >
 
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center"
+                                    >
+                                        No results.
+                                    </TableCell>
                                 </TableRow>
                             ))
-                        ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
+
+                        }
                     </TableBody>
                 </Table>
             </div>

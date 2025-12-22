@@ -52,7 +52,8 @@ export type LeadStatus =
     | 'Warm'
     | 'Hot'
     | 'Quotation sent'
-    | 'Deal done';
+    | 'Deal done'
+    | 'Lead dropped'
 
 export type QuotationType =
     | 'onetime'
@@ -118,6 +119,7 @@ export interface Deal {
     quotation_type: string | null;
     problem_statement: string | null;
     service_requirements: string[] | null;
+    drop_lead_reason: string | null
     status: string | null;
     last_updated: string | null;
     created_at: number | null;
