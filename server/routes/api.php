@@ -24,6 +24,8 @@ Route::post(uri: 'createdeal/{sr_no}', action: [LeadsController::class, 'convetL
 // Deals
 Route::get(uri: 'getdeals', action: [DealController::class, 'getDeals']);
 Route::post(uri: 'createdeal', action: [DealController::class, 'addDeals']);
+Route::post(uri: 'repeatdeal', action: [DealController::class, 'repeatDeal']);
+Route::post(uri: 'updatedeal/{dealId}', action: [DealController::class, 'updateDeal']);
 
 
 //network

@@ -1,13 +1,16 @@
-"use client"
 
 import * as React from "react"
 import {
+
     flexRender,
+    getFacetedRowModel,
+    getFacetedUniqueValues,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
+    type RowData,
     type ColumnDef,
     type ColumnFiltersState,
     type SortingState,
@@ -26,7 +29,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { Input } from "../ui/input"
+
 import {
     Table,
     TableBody,
@@ -41,17 +44,65 @@ import { type Deal } from "../../lib/types"
 import { formateDate } from "../../lib/formateDate"
 import { Badge } from "../ui/badge"
 import { Skeleton } from "../ui/skeleton"
+import Filter from "../ui/Filter"
+import RepeatDeal from "./RepeatDeal"
+import { toast, Toaster } from "sonner"
+import ViewDeal from "./ViewDeal"
+import EditDeals from "./EditDeal"
+
+
+type DealStage =
+    | "Discovery"
+    | "Qualification"
+    | "Proposal"
+    | "Negotiation"
+    | "Closed Won"
+    | "Closed Lost";
 
 
 
+declare module '@tanstack/react-table' {
+    interface ColumnMeta<TData extends RowData, TValue> {
+        filterVariant?: 'text' | 'range' | 'select'
+        options?: string[];
+    }
+}
 
-export function DealsTable() {
+interface childProps {
+    refreshKey: boolean;
+}
+
+
+
+export function DealsTable({ refreshKey }: childProps) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
     const [data, setDeals] = React.useState<Deal[]>([]);
     const [loader, setLoader] = React.useState<boolean>(false);
+
+
+
+    const DEAL_STAGE_STYLES: Record<DealStage, string> = {
+        Discovery:
+            "bg-blue-600/10 text-blue-600 dark:bg-blue-400/10 dark:text-blue-400",
+
+        Qualification:
+            "bg-purple-600/10 text-purple-600 dark:bg-purple-400/10 dark:text-purple-400",
+
+        Proposal:
+            "bg-amber-600/10 text-amber-600 dark:bg-amber-400/10 dark:text-amber-400",
+
+        Negotiation:
+            "bg-orange-600/10 text-orange-600 dark:bg-orange-400/10 dark:text-orange-400",
+
+        "Closed Won":
+            "bg-green-600/10 text-green-600 dark:bg-green-400/10 dark:text-green-400",
+
+        "Closed Lost":
+            "bg-red-600/10 text-red-600 dark:bg-red-400/10 dark:text-red-400",
+    };
 
     const columns: ColumnDef<Deal>[] = [
         {
@@ -79,16 +130,7 @@ export function DealsTable() {
             enableSorting: false,
             enableHiding: false,
         },
-        // {
-        //     id: 'lead_sr_no',
-        //     accessorKey: "lead_sr_no",
-        //     header: "Deal id",
-        //     enableHiding: true,
 
-        //     cell: ({ row }) => (
-        //         <div className="capitalize">{row.getValue("lead_sr_no")}</div>
-        //     ),
-        // },
         {
             accessorKey: "created_at",
             header: ({ column }) => {
@@ -162,37 +204,52 @@ export function DealsTable() {
                         break;
                 }
             },
+            meta: {
+                filterVariant: 'select',
+                options: ['New', 'Repeat', 'In Progress', 'Won', 'Lost', 'On Hold', 'Cancelled']
+            }
         },
         {
             accessorKey: "deal_stage",
             header: "Stage",
             cell: ({ row }) => {
-                const Status = row.getValue("deal_stage");
 
-                switch (Status) {
-                    case "Discovery":
-                        return <Badge variant={"secondary"} className="px-5  bg-blue-400 text-white">{Status}</Badge>
-                        break;
-                    case "Qualification":
-                        return <Badge variant={"secondary"} className="px-5  bg-blue-900 text-white">{Status}</Badge>
-                        break;
-                    case "Proposal":
-                        return <Badge variant={"secondary"} className="px-5  bg-yellow-400 text-white">{Status}</Badge>
-                        break;
-                    case "Negotiation":
-                        return <Badge variant={"secondary"} className="px-5  bg-green-500 text-white">{Status}</Badge>
-                        break;
-                    case "Closed Won":
-                        return <Badge variant={"secondary"} className="px-5  bg-red-400 text-white">{Status}</Badge>
-                        break;
-                    case "Closed Lost":
-                        return <Badge variant={"secondary"} className="px-5  bg-red-400 text-white">{Status}</Badge>
-                        break;
+                const stage = row.original.deal_stage as DealStage | null;
 
-                    default:
-                        break;
-                }
+                const DEAL_STAGE_STYLES: Record<DealStage, string> = {
+                    Discovery:
+                        "bg-blue-600/10 text-blue-600 dark:bg-blue-500/30 dark:text-blue-400",
+
+                    Qualification:
+                        "bg-purple-600/10 text-purple-600 dark:bg-purple-400/30 dark:text-purple-400",
+
+                    Proposal:
+                        "bg-amber-600/10 text-amber-600 dark:bg-amber-400/30 dark:text-amber-400",
+
+                    Negotiation:
+                        "bg-orange-600/10 text-orange-600 dark:bg-orange-400/30 dark:text-orange-400",
+
+                    "Closed Won":
+                        "bg-green-600/10 text-green-900 dark:bg-green-400/30 dark:text-green-400",
+
+                    "Closed Lost":
+                        "bg-red-600/10 text-red-900 font-medium dark:bg-red-500/20 dark:text-red-400",
+                };
+
+
+                const stageStyle =
+                    stage && DEAL_STAGE_STYLES[stage]
+                        ? DEAL_STAGE_STYLES[stage]
+                        : "bg-gray-500/10 text-gray-500";
+
+
+                return <Badge className={`${stageStyle}`}>{stage}</Badge>
+              
             },
+            meta: {
+                filterVariant: 'select',
+                options: ['Discovery', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost']
+            }
         },
         {
             accessorKey: "quotation_type",
@@ -221,25 +278,30 @@ export function DealsTable() {
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => {
-                // const payment = row.original
+                const deal = row.original;
 
                 return (
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                        <DropdownMenuTrigger asChild >
                             <Button variant="ghost" className="h-8 w-8 p-0">
                                 <span className="sr-only">Open menu</span>
                                 <MoreHorizontal />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="border border-gray-300">
+
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                            // onClick={() => navigator.clipboard.writeText(payment.id)}
-                            >
-                                Copy Serial number
-                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>View deal</DropdownMenuItem>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <ViewDeal deal={deal} />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <EditDeals deal={deal} onSuccess={handleEditSuccessFully} />
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <RepeatDeal deal={deal} onSuccess={handleSuccess} />
+                            </DropdownMenuItem>
+
 
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -258,6 +320,8 @@ export function DealsTable() {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        getFacetedRowModel: getFacetedRowModel(),
+        getFacetedUniqueValues: getFacetedUniqueValues(),
         state: {
             sorting,
             columnFilters,
@@ -266,6 +330,33 @@ export function DealsTable() {
         },
     })
 
+    const handleEditSuccessFully = (isSuccess: boolean) => {
+        if (isSuccess) {
+            handleGetallDeals()
+            toast.success('Deal updated successfully!', {
+                style: {
+                    '--normal-bg': 'light-dark(var(--color-green-600), var(--color-green-400))',
+                    '--normal-text': 'var(--color-white)',
+                    '--normal-border': 'light-dark(var(--color-green-600), var(--color-green-400))'
+                } as React.CSSProperties
+            })
+        }
+    }
+
+
+    const handleSuccess = (isSuccess: boolean) => {
+        if (isSuccess) {
+            handleGetallDeals()
+            toast.success('Repeat deal created successfully!', {
+                style: {
+                    '--normal-bg': 'light-dark(var(--color-green-600), var(--color-green-400))',
+                    '--normal-text': 'var(--color-white)',
+                    '--normal-border': 'light-dark(var(--color-green-600), var(--color-green-400))'
+                } as React.CSSProperties
+            })
+        }
+    }
+
     const handleGetallDeals = async () => {
         const resp = await getDealsHandler();
         if (resp.data.success) {
@@ -273,54 +364,56 @@ export function DealsTable() {
             setLoader(false)
         }
     }
-    // console.log("actual deals", data);
+
     useEffect(() => {
         setLoader(true);
         handleGetallDeals();
-    }, [])
+    }, [refreshKey])
 
     return (
         <div className="w-full">
+            <Toaster position="top-center" />
             {/* table header */}
-            <div className="flex items-center py-4">
-                <Input
-                    placeholder="Filter emails..."
-                    value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) => {
-
-                        table.getColumn("email")?.setFilterValue(event.target.value),
-                            table.getColumn("company_name")?.setFilterValue(event.target.value),
-                            table.getColumn("lead_sr_id")?.setFilterValue(event.target.value),
-                            table.getColumn("status")?.setFilterValue(event.target.value)
-                    }}
-                    className="max-w-sm"
-                />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns <ChevronDown />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="border border-gray-300">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+            <div className="flex justify-between py-4">
+                <section className="grid grid-cols-3 gap-2">
+                    <div>
+                        <Filter column={table.getColumn('company_name')!} />
+                    </div>
+                    <div>
+                        <Filter column={table.getColumn('status')!} />
+                    </div>
+                    <div>
+                        <Filter column={table.getColumn('deal_stage')!} />
+                    </div>
+                </section>
+                <section>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="ml-auto">
+                                Columns <ChevronDown />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border border-gray-300">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </section>
             </div>
             <div className=" overflow-hidden rounded-md border border-gray-300">
                 <Table >
@@ -362,18 +455,19 @@ export function DealsTable() {
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                         className="border-b border-b-gray-300"
+
                                     >
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}
-
                                             >
-
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
                                                     cell.getContext()
                                                 )}
                                             </TableCell>
                                         ))}
+
+
                                     </TableRow>
                                 ))
                             ) : (
@@ -418,3 +512,5 @@ export function DealsTable() {
         </div>
     )
 }
+
+

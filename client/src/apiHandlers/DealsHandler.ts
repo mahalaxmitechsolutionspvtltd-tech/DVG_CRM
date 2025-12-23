@@ -28,6 +28,29 @@ async function addDealHandler(fomdata: Partial<Deal>) {
 
 }
 
+async function createRepeatDeal(formdata: Partial<Deal>) {
+    const reaponse = await axios.post(`${URI}/api/repeatdeal`, formdata, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    return reaponse;
+}
+
+async function updateDealHandler(formdata: Partial<Deal>) {
+
+    const dealId = formdata.id;
+
+    const reaponse = await axios.post(`${URI}/api/updatedeal/${dealId}`, formdata, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    })
+    return reaponse;
+}
 
 
-export { getDealsHandler, addDealHandler }
+
+export { getDealsHandler, addDealHandler, createRepeatDeal,updateDealHandler }

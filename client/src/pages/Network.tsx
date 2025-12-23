@@ -16,16 +16,17 @@ export default function Networks() {
   const [refreshKey, setRefreshKey] = useState(false);
 
   const handeleError = (msg: string) => {
-    toast.error(msg);
+    toast.error(msg, {
+      className: "text-lg bg-red-600 text-white",
+    });
   }
 
   const handleSuccess = (isSuccess: boolean) => {
     if (isSuccess) {
-      if (isSuccess) {
-        setRefreshKey((prev: any) => !prev);
-        toast.success("Network added successfully...")
-      }
+      setRefreshKey((prev: any) => !prev);
+      toast.success("Network added successfully...")
     }
+
   }
 
 
@@ -35,7 +36,7 @@ export default function Networks() {
   return (
     <>
       <div>
-        <Toaster className="text-xl" position="top-center" />
+        <Toaster  className="text-xl" position="top-center" />
         <div>
           <div className=" md:flex lg:flex xl:flex 2xl:flex justify-between">
             <Breadcrumb className="my-auto">

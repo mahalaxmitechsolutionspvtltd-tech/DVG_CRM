@@ -103,6 +103,7 @@ export interface Lead {
 }
 
 export interface Deal {
+    id?: string;
     lead_sr_no: string | null;
     company_name: string | null;
     company_type: string | null;
@@ -132,6 +133,6 @@ export interface Netwoks {
     full_name: string | null,
     email: string | null,
     mobile: string | null,
-    type_of_connect: string | null
-    industry_connects: string | null
+    remarks: string | null,
+    type_of_industries: string[] | null
 }

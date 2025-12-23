@@ -22,9 +22,6 @@ interface childProps {
 }
 
 export default function ViewLeads({ lead }: childProps) {
-    console.log(lead);
-
-
     return (
         <>
             <div>

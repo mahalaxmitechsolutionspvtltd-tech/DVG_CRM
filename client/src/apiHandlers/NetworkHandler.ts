@@ -5,9 +5,6 @@ import type { Netwoks } from "../lib/types";
 
 const URI = import.meta.env.VITE_REACT_BACKEND_URI;
 async function getNetworks() {
-    console.log("network handler called");
-    console.log("network handler called");
-
     const response = await axios.get(`${URI}/api/getnetworks`, {
         headers: {
             'Content-Type': 'application/json',

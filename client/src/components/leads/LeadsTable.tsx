@@ -3,7 +3,11 @@ import * as React from "react"
 import {
     type ColumnDef,
     type ColumnFiltersState,
+    type RowData,
+
     flexRender,
+    getFacetedRowModel,
+    getFacetedUniqueValues,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
@@ -12,7 +16,7 @@ import {
     useReactTable,
     type VisibilityState,
 } from "@tanstack/react-table"
-import { ArrowLeftRight, ArrowUpDown, ChevronDown, Copy, Delete, Eye, Handshake, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, ChevronDown, Copy, Delete, Eye, Handshake, MoreHorizontal } from "lucide-react"
 
 import { Button } from "../ui/button"
 import { Checkbox } from "../ui/checkbox"
@@ -24,7 +28,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { Input } from "../ui/input"
+
 import {
     Table,
     TableBody,
@@ -48,12 +52,29 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Spinner } from "../ui/spinner"
 import { toast, Toaster } from "sonner"
 import { useNavigate } from "react-router-dom"
+import Filter from "../ui/Filter"
 
 
-
+declare module '@tanstack/react-table' {
+    interface ColumnMeta<TData extends RowData, TValue> {
+        filterVariant?: 'text' | 'range' | 'select'
+        options?: string[];
+    }
+}
 interface childProps {
     refreshKey: boolean;
 }
+
+export const companyType = [
+    "Properitor",
+    "Partnership-deed",
+    "Limited Liability Partnership (LLP)",
+    "Private Limited (Pvt Ltd)",
+    "Public Limited Company (PLC)",
+    "Hindu Undivided Family Firm (HUF)",
+    "Government Organisation"
+]
+
 
 
 export function LeadsTable({ refreshKey }: childProps) {
@@ -93,13 +114,7 @@ export function LeadsTable({ refreshKey }: childProps) {
             enableSorting: false,
             enableHiding: false,
         },
-        // {
-        //     accessorKey: "sr_no",
-        //     header: "SrNo",
-        //     cell: ({ row }) => (
-        //         <div>{row.getValue("sr_no")}</div>
-        //     )
-        // },
+
         {
             accessorKey: "date",
             header: ({ column }) => {
@@ -131,25 +146,13 @@ export function LeadsTable({ refreshKey }: childProps) {
             header: "Company Type",
             cell: ({ row }) => (
                 <div className=" capitalize">{row.getValue("company_type")}</div>
-            )
+            ),
+            meta: {
+                filterVariant: 'select',
+                options: companyType
+            }
         },
-        // {
 
-        //     accessorKey: "nature_of_business",
-        //     header: "Nature of Business",
-
-        //     cell: ({ row }) => (
-        //         <div className=" capitalize">{row.getValue("nature_of_business")}</div>
-        //     )
-        // },
-        // {
-        //     accessorKey: "gst_no",
-        //     header: "Gst No",
-        //     enableHiding: true,
-        //     cell: ({ row }) => (
-        //         <div className=" capitalize">{row.getValue("gst_no")}</div>
-        //     )
-        // },
         {
             id: "primary_person_email",
             accessorKey: "primary_person_name",
@@ -164,22 +167,7 @@ export function LeadsTable({ refreshKey }: childProps) {
                 )
             }
         },
-        // {
-        //     accessorKey: "secondary_person_name",
-        //     header: "Contact 2",
-        //     enableHiding: true,
-        //     cell: ({ row }) => (
-        //         <div className=" capitalize">{row.getValue("contact2_name")}</div>
-        //     )
-        // },
-        // {
-        //     accessorKey: "tertiary_person_contact",
-        //     header: "Contact 3",
-        //     enableHiding: true,
-        //     cell: ({ row }) => (
-        //         <div className=" capitalize">{row.getValue("tertiary_person_contact")}</div>
-        //     )
-        // },
+
 
         {
             accessorKey: "address_line1",
@@ -193,28 +181,6 @@ export function LeadsTable({ refreshKey }: childProps) {
             header: "Services",
             cell: ({ row }) => (
                 <div className=" capitalize">
-                    {/* <Popover >
-                        <PopoverTrigger asChild>
-                            <Button variant="outline" className="h-7 rounded-sm " >
-                                <Eye />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="bg-white border p-2 border-gray-300 rounded-sm lg:w-md shadow-lg">
-                            <div>
-                                <p className="text-md font-medium text-gray-900"> Required Services</p>
-                                <Separator />
-                                <div className="py-2 grid gap-1">
-                                    {
-                                        row.original.service_requirements?.map((item) => (
-                                            <span className="block">{item}</span>
-                                        ))
-                                    }
-
-                                </div>
-                            </div>
-                        </PopoverContent>
-
-                    </Popover> */}
                     <Tooltip delayDuration={100}>
                         <TooltipTrigger asChild>
                             <Button variant="outline" className="h-7 rounded-sm " >
@@ -229,27 +195,12 @@ export function LeadsTable({ refreshKey }: childProps) {
                             }
                         </TooltipContent>
                     </Tooltip>
-                    {/* {row.getValue("service_requirements")} */}
-                </div>
-            )
-        },
-        // {
-        //     accessorKey: "problem_statement",
-        //     header: "Problems",
-        //     enableHiding: true,
-        //     cell: ({ row }) => (
-        //         <div className=" capitalize">{row.getValue("problem_statement")}</div>
-        //     )
-        // },
-        // {
 
-        //     accessorKey: "remarks",
-        //     header: "Remarks",
-        //     enableHiding: true,
-        //     cell: ({ row }) => (
-        //         <div className=" capitalize">{row.getValue("remarks")}</div>
-        //     )
-        // },
+                </div>
+            ),
+
+        },
+
         {
             accessorKey: "status",
             header: "Status",
@@ -276,6 +227,10 @@ export function LeadsTable({ refreshKey }: childProps) {
                     return <p className=" font-medium  text-red-900 ">{Status}</p>
 
                 }
+            },
+            meta: {
+                filterVariant: 'select',
+                options: ['Cold', 'Hot', 'Warm', 'Quotation sent', 'Lost', 'Lead dropped']
             }
         },
 
@@ -335,7 +290,8 @@ export function LeadsTable({ refreshKey }: childProps) {
                         </div>
                     </>
                 )
-            }
+            },
+
         },
 
         {
@@ -399,6 +355,8 @@ export function LeadsTable({ refreshKey }: childProps) {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        getFacetedRowModel: getFacetedRowModel(),
+        getFacetedUniqueValues: getFacetedUniqueValues(),
         state: {
             sorting,
             columnFilters,
@@ -426,7 +384,13 @@ export function LeadsTable({ refreshKey }: childProps) {
         if (resp?.data.success) {
             setLoader(false)
             setOpen(false)
-            toast.success("New Deal Created Successfully.....")
+            toast.success('New lead created successfully!', {
+                style: {
+                    '--normal-bg': 'light-dark(var(--color-green-600), var(--color-green-400))',
+                    '--normal-text': 'var(--color-white)',
+                    '--normal-border': 'light-dark(var(--color-green-600), var(--color-green-400))'
+                } as React.CSSProperties
+            })
             navigate("/business");
         }
     }
@@ -438,41 +402,47 @@ export function LeadsTable({ refreshKey }: childProps) {
     return (
         <div className="w-full">
             <Toaster position="top-center" />
-            <div className="flex items-center py-4">
-                <Input
-                    placeholder="Filter emails..."
-                    value={(table.getColumn("primary_person_email")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("primary_person_email")?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-auto">
-                            Columns <ChevronDown />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="border border-gray-300">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
-                                    >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+            <div className="flex justify-between py-4">
+                <section className="grid grid-cols-4 gap-2">
+                    <div>
+                        <Filter column={table.getColumn('company_name')!} />
+                    </div>
+                    <div>
+                        <Filter column={table.getColumn('status')!} />
+                    </div>
+                    <div>
+                        <Filter column={table.getColumn('company_type')!} />
+                    </div>
+
+                </section>
+                <section>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="ml-auto">
+                                Columns <ChevronDown />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border border-gray-300">
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </section>
             </div>
             {/* table */}
             <div className="overflow-hidden rounded-md border border-gray-300 overflow-x-auto custom-scrollbar">

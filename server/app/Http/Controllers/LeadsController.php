@@ -19,8 +19,7 @@ class LeadsController extends Controller
                 "company_name" => 'required|min:2',
                 "primary_person_name" => 'required|min:2',
                 "primary_person_contact" => 'required|min:10',
-                "primary_person_email" => 'required|email:rfc,dns',
-                "pan_number" => 'required |regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
+                "status" => 'required',
             ];
 
             $validation = validator($request->all(), $rules);
@@ -64,8 +63,7 @@ class LeadsController extends Controller
                 "company_name" => 'required|min:2',
                 "primary_person_name" => 'required|min:2',
                 "primary_person_contact" => 'required|min:10',
-                "primary_person_email" => 'required|email:rfc,dns',
-                "pan_number" => 'required |regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/',
+
             ];
 
             $validation = validator($request->all(), $rules);
@@ -94,7 +92,6 @@ class LeadsController extends Controller
     function convetLeadIntoDeal($sr_no)
     {
         try {
-
             return DB::transaction(function () use ($sr_no) {
                 $lead = Lead::where('sr_no', $sr_no)->first();
 
@@ -105,7 +102,12 @@ class LeadsController extends Controller
                 $data = [
                     'lead_sr_no' => $lead->sr_no,
                     'company_name' => $lead->company_name,
+                    'company_type' => $lead->company_type,
+                    'nature_of_business' => $lead->nature_of_business,
                     'contact_name' => $lead->primary_person_name,
+                    'contact_number' => $lead->primary_person_contact,
+                    'pan_number' => $lead->pan_number,
+                    'gst_no' => $lead->gst_no,
                     'email' => $lead->primary_person_email,
                     'city' => $lead->address_line1,
                     'deal_title' => '',
@@ -120,7 +122,6 @@ class LeadsController extends Controller
                 $resp = Deal::create(attributes: $data);
                 if ($resp) {
                     $lead->update(['status' => 'Deal done']);
-
                     return ApiResponse::success(true, $resp, "Deal created successfully", 200);
                 }
 

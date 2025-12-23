@@ -1,24 +1,32 @@
 import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Field, FieldLabel } from "../ui/field";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Netwoks } from "../../lib/types";
 import { Textarea } from "../ui/textarea";
 import { Spinner } from "../ui/spinner";
 import { addNetwork } from "../../apiHandlers/NetworkHandler";
+import { industryType } from "../../lib/storeag";
+
+import ComboboxMultipleExpandable from "../ui/ComboboxMultipleExpandable";
+
 
 
 const NetworkForm: Partial<Netwoks> = {
-    // or maybe "Cold" or a default
-};
+    full_name: "",
+    email: "",
+    mobile: "",
+    remarks: "",
+    type_of_industries: []
+}
 interface childProps {
     onSuccess: (isSuccess: boolean) => void;
     errormsg?: (msg: string) => void;
 }
 
+// function start form hear
 export default function AddNetwok({ onSuccess, errormsg }: childProps) {
     const [formdata, setFormData] = useState<Partial<Netwoks>>(NetworkForm);
     const [open, setOpen] = useState<boolean>(false);
@@ -32,13 +40,12 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
             [name]: value
         })
     }
-
-    const handleSelectChange = (value: string) => {
-        setFormData({
-            ...formdata,
-            type_of_connect: value
-        })
-    }
+    const handleSelectChange = useCallback((value: string[]) => {
+        setFormData(prev => ({
+            ...prev,
+            type_of_industries: value
+        }));
+    }, []);
 
     const handleTextArea = (name: string, value: string,) => {
         setFormData((prevData) => ({
@@ -49,6 +56,7 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
 
 
     const handleSubmit = async () => {
+        console.log(formdata);
         setLoader(true)
         try {
             const resp = await addNetwork(formdata);
@@ -68,6 +76,8 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
             setOpen(false);
         }
     }
+
+
     return (
         <>
             <Dialog open={open} >
@@ -76,7 +86,10 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
                         <Plus /> Add Network
                     </Button>
                 </DialogTrigger>
-                <DialogContent className=" border border-gray-300 lg:max-w-xl">
+                <DialogContent
+                    className=" border border-gray-300 lg:max-w-xl"
+
+                >
                     <DialogHeader>
                         <DialogTitle>Add Network</DialogTitle>
                     </DialogHeader>
@@ -86,7 +99,7 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
                             <div className="grid grid-cols-1 gap-2">
                                 <div className="grid grid-cols-1 lg:grid-col-2 xl:grid-cols-2 2xl:xl:grid-cols-2 gap-2">
                                     <Field>
-                                        <FieldLabel>Name</FieldLabel>
+                                        <FieldLabel>Full name</FieldLabel>
                                         <Input
                                             className="border border-gray-300 shadow-none"
                                             type="text"
@@ -96,7 +109,7 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
                                         />
                                     </Field>
                                     <Field>
-                                        <FieldLabel>Number </FieldLabel>
+                                        <FieldLabel>Contact number </FieldLabel>
                                         <Input
                                             className="border border-gray-300 shadow-none"
                                             type="text"
@@ -118,35 +131,26 @@ export default function AddNetwok({ onSuccess, errormsg }: childProps) {
                                     />
                                 </Field>
                                 <Field className="">
-                                    <FieldLabel>Type of Connect </FieldLabel>
-                                    <Select name="" onValueChange={(e) => handleSelectChange(e)}>
-                                        <SelectTrigger className="">
-                                            <SelectValue placeholder="Select type of connect" />
-                                        </SelectTrigger>
-                                        <SelectContent className="border border-gray-300 ">
-                                            <SelectGroup>
-                                                <SelectLabel>type of connect</SelectLabel>
-                                                <SelectItem value="High Value Target">HVT-High Value Target</SelectItem>
-                                                <SelectItem value="High Influence Individual">HII- High Influence Individual</SelectItem>
-                                                <SelectItem value="Business Associate">BA-Business Associate</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                                    <FieldLabel>Type of Industry</FieldLabel>
+                                    <ComboboxMultipleExpandable
+                                        list={industryType}
+                                        placeholder="Type of industries"
+                                        onSelect={handleSelectChange}
+
+                                    />
                                 </Field>
                                 <Field>
                                     <FieldLabel>Remark</FieldLabel>
                                     <Textarea
                                         className="border border-gray-300 shadow-none"
                                         placeholder="type and press enter.."
-                                        name="industry_connects"
-                                        onChange={(e) => handleTextArea("industry_connects", e.target.value)}
+                                        name="remarks"
+                                        onChange={(e) => handleTextArea("remarks", e.target.value)}
 
                                     />
                                 </Field>
                             </div>
                         </div>
-
-
                     </div>
 
                     <DialogFooter >

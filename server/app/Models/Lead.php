@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Lead extends Model
 {
 
-    protected $primaryKey = 'sr_no';
+
     protected $fillable = [
+        "sr_no",
         "company_name",
         "company_type",
         "nature_of_business",
@@ -52,10 +53,16 @@ class Lead extends Model
         parent::boot();
 
         static::creating(function ($lead) {
+
+            if (empty($lead->sr_no)) {
+                $lead->sr_no = 'LD-' . now()->format('YmdHis');
+            }
+
             // Auto-fill date column
             if (empty($lead->date)) {
                 $lead->date = now()->toDateString();  // YYYY-MM-DD
             }
+
         });
     }
 }

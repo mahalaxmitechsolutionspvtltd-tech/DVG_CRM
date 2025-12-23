@@ -11,40 +11,53 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('leads', function (Blueprint $table) {
-            $table->bigIncrements('sr_no'); // <-- your custom PK
+            $table->id();
 
-            // Basic fields
-            $table->date('date');
+            // Basic lead info
+            $table->string('sr_no')->nullable();
+            $table->date('date')->nullable();
+
             $table->string('company_name')->nullable();
             $table->string('company_type')->nullable();
             $table->string('nature_of_business')->nullable();
-            $table->string('gst_no')->nullable();
 
-            // Contacts
-            $table->string('contact1_name')->nullable();
-            $table->string('contact2_name')->nullable();
-            $table->string('contact3_name')->nullable();
-            $table->string('email')->nullable();
+            $table->string('gst_no')->nullable();
+            $table->string('pan_number')->nullable();
+
+            // Primary contact (REQUIRED at app level)
+            $table->string('primary_person_name');
+            $table->string('primary_person_contact');
+            $table->string('primary_person_email');
+
+            // Secondary contact
+            $table->string('secondary_person_name')->nullable();
+            $table->string('secondary_person_contact')->nullable();
+            $table->string('secondary_person_email')->nullable();
+
+            // Tertiary contact
+            $table->string('tertiary_person_name')->nullable();
+            $table->string('tertiary_person_contact')->nullable();
+            $table->string('tertiary_person_email')->nullable();
 
             // Address
             $table->string('address_line1')->nullable();
             $table->string('city')->nullable();
 
-            // Requirements & details
+            // Business details
             $table->text('problem_statement')->nullable();
             $table->json('service_requirements')->nullable();
-
             $table->text('remarks')->nullable();
 
-            // Status & quotation
-            $table->string('status')->nullable();
+            // Lead tracking
+            $table->string('status');
             $table->decimal('quotation_amount', 12, 2)->nullable();
             $table->string('quotation_type')->nullable();
 
-            // Follow-ups stored as JSON array
+            // Follow-ups (array of objects)
             $table->json('follow_ups')->nullable();
 
-            // Unix timestamp (ms)
+            // Other
+            $table->string('expenses')->nullable();
             $table->bigInteger('last_updated')->nullable();
 
             $table->timestamps();

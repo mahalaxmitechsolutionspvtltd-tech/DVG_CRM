@@ -559,6 +559,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                                 <FieldLabel>Reason for Drop lead</FieldLabel>
                                                 <Textarea
                                                     name='drop_lead_reason'
+                                                    onKeyDown={(e) => e.stopPropagation()}
                                                     onChange={(e) => handleTextArea('drop_lead_reason', e.target.value)}
                                                 />
                                             </Field>
@@ -715,7 +716,7 @@ export default function EditLead({ onSuccess, leads }: childProps) {
                                                                             value={item.note}
                                                                             onChange={(e) => updateFollowUp(item.id, 'note', e.target.value)}
                                                                             onKeyDown={(e) => e.stopPropagation()}
-                                                                            placeholder="Add your query.."
+                                                                            placeholder="Add your follow ups"
                                                                             className="border-none  focus-visible:ring-0 "
                                                                         />
                                                                     </div>

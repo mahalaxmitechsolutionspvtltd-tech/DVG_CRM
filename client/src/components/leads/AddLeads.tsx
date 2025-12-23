@@ -59,7 +59,7 @@ const requirement = [
     { lable: 'Company Profile & Business Profile', value: 'Company Profile & Business Profile' },
 ];
 
-
+type BackendErrors = Record<string, string[]>;
 interface childProps {
     onSuccess: (isSuccess: boolean) => void;
 }
@@ -98,7 +98,7 @@ export default function AddLeads({ onSuccess }: childProps) {
     const [formdata, setFormData] = useState<Partial<Lead>>(form);
     const [isNewValue, setNewValue] = useState(false);
     const [isDeal, setDeal] = useState(false);
-    const [errors, setFormErrors] = useState<Lead>();
+    const [errors, setFormErrors] = useState<BackendErrors>();
     const [open, setOpen] = useState(false);
     const [loader, setLoader] = useState(false);
 
@@ -152,20 +152,24 @@ export default function AddLeads({ onSuccess }: childProps) {
 
     const handleSubmit = async () => {
         setLoader(true);
-        const response = await addLeadHandler(formdata);
-        console.log(response?.data.errors);
-        if (response?.data?.success) {
-            onSuccess(true);
-            setFormData(form);
-            setOpen(false)
+        try {
+            const response = await addLeadHandler(formdata);
+
+            if (response?.data?.success) {
+                onSuccess(true);
+                setFormData(form);
+                setOpen(false)
+                setLoader(false);
+            }
+            else {
+                setLoader(false);
+                setFormErrors(response?.data.errors)
+            }
+        } catch (error) {
             setLoader(false);
-        }
-        else {
-            setFormErrors(response?.data.errors)
+            console.log(error);
         }
     }
-
-
     return (
 
         <div className=" overflow-auto overflow-y-auto">
@@ -182,10 +186,7 @@ export default function AddLeads({ onSuccess }: childProps) {
                     <DialogHeader>
                         <DialogTitle className="text-center">Add Leads</DialogTitle>
                     </DialogHeader>
-
-
                     <div className="grid grid-cols-1 lg:grid-cols-12 xl:grid-cols-12 2xl:grid-cols-12 gap-5 overflow-y-auto h-xl ">
-
                         <div className="col-span-8 grid gap-1">
                             {/* company section */}
                             <section className="border border-gray-300 rounded-sm">
@@ -199,7 +200,8 @@ export default function AddLeads({ onSuccess }: childProps) {
                                         <Input
                                             name="company_name"
                                             onChange={(e) => handleInputChange(e)}
-                                            placeholder={errors?.company_name ? errors.company_name![0] : "company name.."}
+                                            placeholder={errors?.company_name?.[0] ?? "company name.."}
+
                                             className={`${errors?.company_name ? "border-2 border-red-600 text-red-600" : ""}`}
                                             required
                                         />
@@ -235,13 +237,13 @@ export default function AddLeads({ onSuccess }: childProps) {
                                         {/* company nature */}
                                         <div>
 
-                                            <FieldLabel className="text-sm">Nature of Business</FieldLabel>
+                                            <FieldLabel className="text-sm">Nature of Business/Industry of client</FieldLabel>
                                             {!isNewValue ? (
                                                 <Select
 
                                                     name="nature_of_business"
                                                     onValueChange={(value) => {
-                                                        value === "other" ? setNewValue(true) : handleSelectChange("natureOfBusiness", value)
+                                                        value === "other" ? setNewValue(true) : handleSelectChange("nature_of_business", value)
                                                     }}
                                                 >
                                                     <SelectTrigger className="w-full">
@@ -299,15 +301,15 @@ export default function AddLeads({ onSuccess }: childProps) {
                                         </div>
                                         <div className="my-3">
 
-                                            <FieldLabel>PAN number<Asterisk className="-mx-1.5 w-3 h-3 text-red-500" /></FieldLabel>
+                                            <FieldLabel>PAN number</FieldLabel>
                                             <Input
 
                                                 required
                                                 name={"pan_number"}
                                                 max={10}
                                                 onChange={(e) => handleInputChange(e)}
-                                                placeholder={errors?.pan_number ? errors.pan_number![0] : "eg.ABCDE0123F"}
-                                                className={`${errors?.pan_number ? "border-2 border-red-600 text-red-600" : ""}  uppercase text-blue-700 font-semibold`}
+                                                placeholder={"eg.ABCDE0123F"}
+                                                className={`uppercase text-blue-700 font-semibold`}
                                             />
                                         </div>
                                     </div>
@@ -333,8 +335,9 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                 name="primary_person_name"
                                                 onChange={(e) => handleInputChange(e)}
                                                 required
-                                                placeholder={errors?.primary_person_name ? errors.primary_person_name![0] : "Full name"}
-                                                className={` ${errors?.primary_person_name![0] ? "border-2 border-red-600 text-red-600" : ""}`}
+                                                placeholder={errors?.primary_person_name?.[0] ?? "Full name"}
+                                                className={errors?.primary_person_contact ? "border-red-600" : ""}
+
                                             />
                                         </div>
                                         <div>
@@ -345,8 +348,8 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                 name="primary_person_contact"
                                                 onChange={(e) => handleInputChange(e)}
                                                 required
-                                                placeholder={errors?.primary_person_contact ? errors.primary_person_contact![0] : "eg.98473xxxx"}
-                                                className={` ${errors?.primary_person_contact![0] ? "border border-red-600 text-red-600" : ""}`}
+                                                placeholder={errors?.primary_person_contact?.[0] ?? "eg.98473xxxx"}
+                                                className={` ${errors?.primary_person_contact ? "border border-red-600 text-red-600" : ""}`}
                                             />
                                         </div>
                                         <div>
@@ -357,8 +360,8 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                 name="primary_person_email"
                                                 onChange={(e) => handleInputChange(e)}
                                                 required
-                                                placeholder={errors?.primary_person_email ? errors.primary_person_email![0] : "email"}
-                                                className={` ${errors?.primary_person_email![0] ? "border border-red-600 text-red-600" : ""}`}
+                                                placeholder={"email"}
+                                                className={``}
                                             />
                                         </div>
                                     </div>
@@ -455,7 +458,6 @@ export default function AddLeads({ onSuccess }: childProps) {
                                             placeholder="e.g 123, Mumbai 400001,India" />
                                     </div>
                                 </div>
-
                             </section>
                         </div>
 
@@ -475,10 +477,11 @@ export default function AddLeads({ onSuccess }: childProps) {
                                         <FieldLabel className="text-sm">Status</FieldLabel>
                                         <Select
                                             name="status"
+
                                             onValueChange={(value) => { value == "Quatation sent" ? setDeal(true) : setDeal(false), handleSelectChange("status", value) }}
                                         >
-                                            <SelectTrigger className="w-full">
-                                                <SelectValue placeholder="Status" />
+                                            <SelectTrigger className={`${errors?.status ? "border border-red-600 text-red-600" : ""} w-full`} >
+                                                <SelectValue placeholder={errors?.status?.[0] ?? "Status"}  className={`${errors?.status ? "border border-red-600 text-red-600" : ""}`}/>
                                             </SelectTrigger>
                                             <SelectContent className="border border-gray-300">
                                                 <SelectGroup>
@@ -504,14 +507,14 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                 <section className="flex gap-2">
                                                     <div>
                                                         <FieldLabel className="text-sm">Bussiness value</FieldLabel>
-                                                        <Input onChange={handleInputChange} name="quotationAmount" id="bussiess value" placeholder="₹" type="number" className="" />
+                                                        <Input onChange={handleInputChange} name="quotation_amount" id="bussiess value" placeholder="₹" type="number" className="" />
                                                     </div>
                                                     <div>
 
                                                         <FieldLabel className="text-sm">Steps</FieldLabel>
                                                         <Select
                                                             name="status"
-                                                            onValueChange={(value) => handleSelectChange("quotationType", value)}
+                                                            onValueChange={(value) => handleSelectChange("quotation_type", value)}
                                                         >
                                                             <SelectTrigger className="w-full">
                                                                 <SelectValue placeholder="One time /monthly" />
@@ -592,7 +595,7 @@ export default function AddLeads({ onSuccess }: childProps) {
                                         <FieldLabel className="text-sm">Remark</FieldLabel>
                                         <Textarea
                                             name="remarks"
-                                            onChange={(e) => handleTextArea("remark", e.target.value)}
+                                            onChange={(e) => handleTextArea("remarks", e.target.value)}
                                             placeholder="Remark.." />
                                     </div>
 
@@ -638,7 +641,7 @@ export default function AddLeads({ onSuccess }: childProps) {
                                                                             cols={2}
                                                                             value={item.note}
                                                                             onChange={(e) => updateFollowUp(item.id, 'note', e.target.value)}
-                                                                            placeholder="Add your query.."
+                                                                            placeholder="Add your follow ups.."
                                                                             className="border-none  focus-visible:ring-0 "
                                                                         />
                                                                     </div>

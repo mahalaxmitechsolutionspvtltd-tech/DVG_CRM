@@ -13,7 +13,7 @@ import {
     type SortingState,
     type VisibilityState,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Mail, MoreHorizontal, Phone } from "lucide-react"
+import { ArrowUpDown, ChevronDown, Eye, Mail, MoreHorizontal, Phone } from "lucide-react"
 
 import { Button } from "../../components/ui/button"
 
@@ -38,6 +38,7 @@ import {
 import type { Netwoks } from "../../lib/types"
 import { getNetworks } from "../../apiHandlers/NetworkHandler"
 import { useEffect } from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
 
 
@@ -84,15 +85,41 @@ export function NetworkTable({ refreshKey }: childProps) {
         },
 
         {
-            accessorKey: "type_of_connect",
-            header: "Type Of connect",
-            cell: ({ row }) => <div className="lowercase">{row.getValue("type_of_connect")}</div>,
+            accessorKey: "type_of_industries",
+            header: "Type of industries",
+            cell: ({ row }) => {
+
+
+                return (
+                    <>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Button size={"sm"} variant={"outline"}>
+                                    <Eye size={18} />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="">
+                                   <div className="grid gap-1">
+                                     {
+                                        row.original.type_of_industries?.map((item, index) => (
+                                            <li className="" key={index}>{index + 1}.{item}</li>
+                                        ))
+                                    }
+                                   </div>
+                            </TooltipContent>
+                        </Tooltip>
+                    </>
+                );
+            }
+
+
+
         },
 
         {
-            accessorKey: "industry_connects",
+            accessorKey: "remarks",
             header: "Remark",
-            cell: ({ row }) => <div className="lowercase">{row.getValue("industry_connects")}</div>,
+            cell: ({ row }) => <div className="lowercase">{row.getValue("remarks")}</div>,
         },
         {
             id: "actions",
@@ -147,7 +174,6 @@ export function NetworkTable({ refreshKey }: childProps) {
     const handleGetData = async () => {
         try {
             const resp = await getNetworks();
-            console.log(resp.data);
             setData(resp.data.data);
         } catch (err) {
             console.error("API failed:", err);
