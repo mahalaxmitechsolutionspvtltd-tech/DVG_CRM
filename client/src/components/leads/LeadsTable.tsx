@@ -326,11 +326,11 @@ export function LeadsTable({ refreshKey }: childProps) {
                                     >
                                         <EditLead leads={lead} onSuccess={handleRfresh} />
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                    {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
 
                                         <Delete />
                                         Delete Lead
-                                    </DropdownMenuItem>
+                                    </DropdownMenuItem> */}
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>

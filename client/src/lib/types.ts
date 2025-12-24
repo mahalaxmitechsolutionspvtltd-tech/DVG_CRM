@@ -35,6 +35,7 @@ export interface User {
     email: string;
     username: string;
     mobile: number | string;
+    role: string
 
 }
 

@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 
 class UserAuthController extends Controller
@@ -56,74 +57,121 @@ class UserAuthController extends Controller
     }
 
     // user login
-    function signIn(Request $request)
+    public function signIn(Request $request)
     {
-
         try {
 
+            $credentials = $request->all('email', 'password');
+
             $rules = [
-                "email" => "required|email:rfc,dns|exists:users,email",
+                "email" => "required|exists:users,email",
                 "password" => "required|min:8|max:14",
             ];
 
-
-            $input = $request->only('email', 'password');
-
-            $validationChek = validator($input, $rules);
-
-            if ($validationChek->fails()) {
-                return ApiResponse::error("fill blanks..", 400, $validationChek->errors());
+            $validator = Validator::make($credentials, $rules);
+            if ($validator->fails()) {
+                return ApiResponse::error("Invalid crediantials", 401, $validator->errors());
             }
 
+            $user = User::where('email', $credentials['email'])->first();
 
-            $user = User::where('email', $input['email'])->first();
+           
+            if (!$user || !Hash::check($credentials['password'], $user->password)) {
+                return ApiResponse::error("Invalid crediantials", 401, "Invalid password..");
+            }
 
-            if (!$user)
-                return ApiResponse::error(message: "Invalid email and password", status: 450);
-
-            $validUser = Hash::check($request->password, $user['password']);
-
-            if (!$validUser)
-                return ApiResponse::error(message: "Invalid password", status: 450);
 
             $user->tokens()->delete();
 
-            $token = $user->createToken(
-                name: 'auth-token',
-                abilities: ['*'],
-                expiresAt: now()->addHours(1) // 1-hour expiry
-            )->plainTextToken;
+            $tokenExpiration = now()->addDays(7);
+            $tokenInstance = $user->createToken('auth-token', ['*'], $tokenExpiration);
+            $token = $tokenInstance->plainTextToken;
+
 
             $cookie = cookie(
-                name: 'auth_token',
-                value: $token,
-                minutes: 60 * 24,
-                path: '/',
-                domain: null,
-                secure: true,
-                httpOnly: true,
-                sameSite: 'None'
+                'auth_token',
+                $token,
+                60 * 24 * 7,
+                '/',
+                null,
+                config('session.secure'),
+                true,
+                false,
+                'Lax'
             );
 
+
             $data = [
+
                 "username" => $user->full_name,
                 "email" => $user->email,
-                "moblie_no" => $user->mobile_no,
-                "message" => "user logged in successfully.."
+                "mobile_no" => $user->mobile_no,
+                "role" => $user->role
             ];
 
-            if (!$user || !$validUser) {
-                return ApiResponse::error(message: "Invalid email and password, status: 450");
-            } else {
-                return ApiResponse::success(true, $data, "Login in successfully..", 200)->withCookie($cookie);
-
-            }
+            return ApiResponse::success(true, $data, "Login successful.", 200)
+                ->withCookie($cookie);
 
         } catch (\Throwable $th) {
+
+            report($th);
+
             return response()->json([
                 'success' => false,
-                'error' => $th
+                'message' => 'An internal server error occurred.'
             ], 500);
         }
     }
+
+
+    //Logout
+
+    public function logout(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $user->tokens()->delete(); // revoke token
+        }
+        $cookie = cookie()->forget('auth_token');
+
+        return response()->json(['success' => true, 'message' => 'Logged out successfully'])->withCookie($cookie);
+    }
+
+    // Get user
+
+    public function checkAuth(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if ($user) {
+                return response()->json([
+                    'success' => true,
+                    'isLoggedin' => true,
+                    'message' => 'User is logged in',
+                    'data' => [
+                        'id' => $user->id,
+                        'username' => $user->full_name,
+                        'email' => $user->email,
+                        'mobile' => $user->mobile_no,
+                        'role' => $user->role
+                    ]
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => false,
+                'isLoggedin' => false,
+                'message' => 'User is not logged in',
+            ], 401);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 }

@@ -1,69 +1,83 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { AuthContextType, AuthProviderProps, User } from "../lib/types";
-// import { Outlet } from 'react-router-dom';
-
-
+import axios from "axios";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export default function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
 
-    const [user, setUser] = useState<User | null>(null);
-    const [isloading, setLoding] = useState(false);
+  // ✅ IMPORTANT: start as true (we haven't checked session yet)
+  const [isloading, setLoding] = useState(true);
 
-    useEffect(() => {
+  const URI = import.meta.env.VITE_REACT_BACKEND_URI;
 
-        const checkAuth = async() => {
-            try {
-                const data = localStorage.getItem('auth');
-                if (!data) return;
-                setUser(JSON.parse(data));
+  useEffect(() => {
+    checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-                setLoding(false);
-            } catch (error) {
+  const checkAuth = async () => {
+    setLoding(true); // ✅ block guards until request finishes
+    try {
+      const response = await axios.get(`${URI}/api/user`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      });
 
-            } finally {
-
-            }
-        }
-
-        checkAuth();
-    }, []);
-
-
-
-    const login = async (user: User) => {
-        if (!user) return;
-        setUser(user);
-        localStorage.setItem("auth", JSON.stringify(user));
-    }
-
-    const logout = async () => {
+      if (response.data?.success) {
+        setUser(response.data.data);
+      } else {
         setUser(null);
-        localStorage.removeItem('auth');
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoding(false); // ✅ now guards can redirect safely
     }
+  };
 
-    const value: AuthContextType = {
-        user,
-        login,
-        logout,
-        isloading,
-        setLoding,
+  const login = async (u: User) => {
+    if (!u) return;
+    setUser(u);
+  };
 
-    };
+  const logout = async () => {
+    try {
+      const response = await axios.post(
+        `${URI}/api/logout`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          withCredentials: true,
+        }
+      );
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    )
+      if (response.data?.success) setUser(null);
+    } finally {
+      localStorage.removeItem("auth");
+    }
+  };
+
+  const value: AuthContextType = {
+    user,
+    login,
+    logout,
+    isloading,
+    setLoding,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within AuthProvider");
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
 }

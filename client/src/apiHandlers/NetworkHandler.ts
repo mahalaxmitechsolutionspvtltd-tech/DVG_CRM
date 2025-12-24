@@ -9,7 +9,8 @@ async function getNetworks() {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-        }
+        },
+        withCredentials: true,
     })
     return response;
 }
@@ -19,7 +20,8 @@ async function addNetwork(formdata: Partial<Netwoks>) {
         headers: {
             'Content-Type': 'applicaon/json',
             'Accept': 'application/json'
-        }
+        },
+        withCredentials: true,
     })
     return reaponse;
 }

@@ -22,9 +22,12 @@ export default async function loginHandler(loginform: LoginData, setLoding: Disp
                 withCredentials: true
             }
         );
-
+       
+        console.log(response);
+        
         if (response.data.success) {
-            await login(response.data.data);           
+            await login(response.data.data);       
+                
         }
 
         return response.data?.success
@@ -34,7 +37,7 @@ export default async function loginHandler(loginform: LoginData, setLoding: Disp
             const errors = error.response.data.errors;
             setErrors(errors);
         }
-
+         
         console.error(error.response.data.errors)
     } finally {
         setLoding(false);

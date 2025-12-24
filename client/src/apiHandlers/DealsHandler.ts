@@ -10,7 +10,8 @@ async function getDealsHandler() {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-        }
+        },
+         withCredentials: true,
     })
     return reaponse;
 
@@ -22,7 +23,8 @@ async function addDealHandler(fomdata: Partial<Deal>) {
         headers: {
             'Content-Type': 'applicaion/json',
             'Accept': 'application/json'
-        }
+        },
+         withCredentials: true,
     });
     return reaponse;
 
@@ -33,7 +35,8 @@ async function createRepeatDeal(formdata: Partial<Deal>) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-        }
+        },
+        withCredentials: true,
     })
     return reaponse;
 }
@@ -46,11 +49,12 @@ async function updateDealHandler(formdata: Partial<Deal>) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-        }
+        },
+         withCredentials: true,
     })
     return reaponse;
 }
 
 
 
-export { getDealsHandler, addDealHandler, createRepeatDeal,updateDealHandler }
+export { getDealsHandler, addDealHandler, createRepeatDeal, updateDealHandler }

@@ -1,7 +1,7 @@
 "use client"
 
 import {
-  IconCreditCard,
+
   IconDotsVertical,
   IconLogout,
   IconNotification,
@@ -11,7 +11,7 @@ import {
 import {
   Avatar,
   AvatarFallback,
-  AvatarImage,
+
 } from "./ui/avatar"
 import {
   DropdownMenu,
@@ -30,7 +30,7 @@ import {
 } from "./ui/sidebar"
 import { useAuth } from "../auth/AuthProvider"
 import { Link } from "react-router-dom"
-import { Button } from "./ui/button"
+
 import { Settings } from "lucide-react"
 
 export function NavUser() {
@@ -48,15 +48,19 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border border-gray-300 bg-gray-300"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
+              <Avatar className="h-8 w-8 rounded-md grayscale ">
                 {/* <AvatarImage src={user?.avatar ?? ""} alt={user.name} /> */}
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user?.username}</span>
+                <div className="flex gap-1 justify-between">
+                  <span className="truncate font-medium">{user?.username}</span>
+                  
+                </div>
                 <span className="text-muted-foreground truncate text-xs">
                   {user?.email}
                 </span>
+
               </div>
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -74,9 +78,12 @@ export function NavUser() {
                   <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user?.username ?? ""}</span>
+                  <span className="truncate font-medium">{user?.username}</span>
                   <span className="text-muted-foreground truncate text-xs">
                     {user?.email}
+                  </span>
+                  <span className="truncate text-xs text-red-600 font-medium">
+                    {user?.role}
                   </span>
                 </div>
               </div>

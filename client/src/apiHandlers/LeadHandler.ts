@@ -16,7 +16,8 @@ async function addLeadHandler(formdata: Partial<Lead>) {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                }
+                },
+                withCredentials: true,
             }
         );
         return resp;
@@ -36,7 +37,8 @@ async function getLeadsHandler() {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-        }
+        },
+        withCredentials: true,
     })
     return reaponse;
 
@@ -50,7 +52,8 @@ async function updateLeadHandler(formdata: Partial<Lead>) {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-        }
+        },
+        withCredentials: true,
     })
 
     return reaponse;
@@ -61,10 +64,13 @@ async function convertDeal(lead: Lead) {
     const sr_no = lead.sr_no
     try {
         const response = await axios.post(`${URI}/api/createdeal/${sr_no}`, {
+
             headers: {
                 'Content-Type': 'Application/jsonm',
-                'Accept': 'Application/jsonm'
-            }
+                'Accept': 'Application/jsonm',
+            },
+            withCredentials: true,
+
         });
         if (response) {
             return response;

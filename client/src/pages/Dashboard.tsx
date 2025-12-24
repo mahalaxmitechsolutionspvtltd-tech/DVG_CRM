@@ -1,10 +1,10 @@
 
-import SectionCards from "../components/SectionCard";
+// import SectionCards from "../components/SectionCard";
 export default function Dashboard() {
   return (
     <>
       <div>
-        <SectionCards />
+        {/* <SectionCards /> */}
       </div>
     </>
   )

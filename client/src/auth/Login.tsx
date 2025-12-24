@@ -27,9 +27,10 @@ export function Login({
     ...props
 }: React.ComponentProps<"div">) {
 
-    const { login, isloading, setLoding } = useAuth();
+    const { login, setLoding } = useAuth();
     const navigate = useNavigate();
 
+    const [loader, setLoader] = useState<boolean>(false);
     const [loginform, setLoginForm] = useState<LoginData>({})
     const [errors, setErrors] = useState<LoginErrors>({
         email: "",
@@ -48,18 +49,21 @@ export function Login({
     }
 
     const handleSumit = async (e: FormEvent) => {
-
         e.preventDefault();
-        setLoding(true);
-        const result = await loginHandler(loginform, setLoding, setErrors, login);
 
-        if (result) {
-            setLoding(false);
+        setLoader(true);
+        const response = await loginHandler(loginform, setLoding, setErrors, login);
+        console.log(response);
+        if (response) {
+            setLoader(false);
             navigate("/");
+        } else {
+            setLoader(false);
 
         }
 
     }
+    console.log(errors);
 
 
 
@@ -115,7 +119,8 @@ export function Login({
                                             }
 
                                         </div>
-                                        <small className="text-red-600">{errors?.password}</small>
+              
+                                        <small className="text-red-600">{errors ? errors.password : errors}</small>
 
                                     </Field>
 
@@ -123,7 +128,7 @@ export function Login({
                                         <Button type="submit">
 
                                             {
-                                                isloading ? <Loader className="w-18 h-18 animate-spin" /> : "Login"
+                                                loader ? <Loader className="w-18 h-18 animate-spin" /> : "Login"
                                             }
 
                                         </Button>
