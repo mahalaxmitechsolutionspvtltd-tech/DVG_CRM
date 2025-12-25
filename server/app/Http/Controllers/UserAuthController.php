@@ -34,7 +34,8 @@ $input = $request->only(['full_name','email','password','mobile_no']);
 
 
             if ($validation->fails()) {
-                return ApiResponse::error("fill blanks..", 400, $validation->errors());
+               return ApiResponse::error("fill blanks..", 422, $validation->errors());
+
             } else {
 
 
@@ -47,12 +48,13 @@ $input = $request->only(['full_name','email','password','mobile_no']);
                     return ApiResponse::success(true, $user, "User registerd successfully..", 200);
 
                 } else {
-                    return ApiResponse::error($user, 400, null );
+                   return ApiResponse::error("User not created", 500);
                 }
 
             }
         } catch (\Throwable $th) {
-            return ApiResponse::error("someting went wrong", 500, $th );
+           report($th);
+return ApiResponse::error("someting went wrong", 500, $th->getMessage());
         }
 
     }
